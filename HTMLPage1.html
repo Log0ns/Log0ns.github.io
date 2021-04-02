@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+
+<script type="text/javascript">
+
+    var nbr = 0;
+
+    function increase() {
+        nbr++;
+    }
+
+    function doClick() {
+        document.getElementById("myTxt").value = nbr;
+    }
+
+</script>
+
+<table border="1" style="border-collapse: collapse; width: 100%; height: 21px;">
+    <tbody>
+        <tr style="height: 21px;">
+            <td style="width: 50%; height: 21px;">ff</td>
+            <td style="width: 50%; height: 21px;">ffffasdf</td>
+        </tr>
+    </tbody>
+</table>
+<input type="text" value="start" id="myTxt" />
+<p>
+    <label for="w3review">Review of W3Schools:</label> <textarea id="text" name="w3review" rows="4" cols="50" style="margin: 0px; width: 330px; height: 71px;">text</textarea>
+</p>
+<p><button type="button" onclick="increase(); doClick();">test!</button></p>

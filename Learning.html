@@ -1,0 +1,1406 @@
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script>
+      var testEnvJson = {
+        environment: {
+          name: "Lava Canyon",
+          danger: 7, // TODO
+          enemyCount: 4,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Rock", // TODO ground
+          symbol: "▲",
+          backgroundColor: "#8B4513",
+          color: "#FFFFFF",
+        },
+        prop_types: [
+          {
+            name: "Lava", // TODO group
+            symbol: "≋",
+            backgroundColor: "#FF4C00",
+            color: "#FFFF00",
+            rarity: 0.5,
+          },
+          {
+            name: "Tree", // TODO individual
+            symbol: "♠",
+            backgroundColor: "#006400",
+            color: "#FFFF00",
+            rarity: 0.3,
+          },
+          {
+            name: "Bones", // TODO rare
+            symbol: "☠",
+            backgroundColor: "#D3D3D3",
+            color: "#FF0000",
+            rarity: 0.95,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Snail",
+            symbol: "m",
+            color: "#ffff99",
+          },
+          {
+            name: "Troll",
+            symbol: "M",
+            color: "#ff5050",
+          },
+          {
+            name: "Bunny",
+            symbol: "x",
+            color: "#ccff99",
+          },
+        ],
+      };
+      var seed = 0; // TODO
+      var worldSize = 15;
+      var worldData = [];
+      var worldTable;
+      var creaturesParent;
+      var numCreatures = 0;
+      var numEffects = 0;
+      var walkSpeed = 0.9;
+      var workSpeed = 1000;
+      var selObj;
+      var firstArea = true;
+      var defaultSmoothness = 15; // TODO noise scale
+
+      var worldCoords = [0, 0]; // TODO biomes planned and stored
+      var health = 10;
+      var items = [];
+      function updateStats() {
+        document.getElementById("healthDiv").innerHTML = "Health: " + health;
+
+        var itemsDiv = document.getElementById("itemsDiv");
+        itemsDiv.innerHTML = "Items:";
+        for (i = 0; i < items.length; i++) {
+          itemsDiv.innerHTML += "<br>" + items[i][0] + " x" + items[i][1];
+        }
+      }
+
+      var tileTypes = [
+        { name: "Home", color: "#ff9f60", symbol: "▲", act: "_sleep" },
+        { name: "Dirt", color: "#aaff80", symbol: "#", act: "" },
+        { name: "Rock", color: "#8c8c8c", symbol: "♦", act: "" },
+        { name: "Tree", color: "#b32400", symbol: "♣", act: "", value: 0 },
+        {
+          name: "Water",
+          color: "#EEEEFF",
+          backgroundColor: "#42e5f4",
+          symbol: "~~",
+          act: "_water",
+        },
+        { name: "Carrot", color: "#ffb84d", symbol: "#", act: "Carrot" },
+        {
+          name: "Path",
+          color: "#d68563",
+          backgroundColor: "#ffb619",
+          symbol: "#",
+        },
+        {
+          name: "Up",
+          color: "#ffffff",
+          backgroundColor: "#bfbfbf",
+          symbol: "^",
+        },
+        {
+          name: "Down",
+          color: "#ffffff",
+          backgroundColor: "#bfbfbf",
+          symbol: "v",
+        },
+        {
+          name: "Left",
+          color: "#ffffff",
+          backgroundColor: "#bfbfbf",
+          symbol: "<",
+        },
+        {
+          name: "Right",
+          color: "#ffffff",
+          backgroundColor: "#bfbfbf",
+          symbol: ">",
+        },
+      ];
+
+      var specialTiles = [];
+      function updateSpecialTiles() {
+        specialTiles = [
+          { i: 0, j: Math.round(worldSize / 2), type: "Up" },
+          { i: worldSize + 1, j: Math.round(worldSize / 2), type: "Down" },
+          { i: Math.round(worldSize / 2), j: 0, type: "Left" },
+          { i: Math.round(worldSize / 2), j: worldSize + 1, type: "Right" },
+        ];
+      }
+
+      var movingCreatures = [];
+
+      $(document).ready(function () {
+        init();
+      });
+
+      function init() {
+        worldTable = document.getElementById("world");
+        creaturesParent = document.getElementById("creatures");
+        createWorldData();
+        drawWorld();
+        //setInterval(timeTick, 1000);
+        createCreature("player", 0, 0);
+        createCreatures();
+
+        firstArea = false;
+      }
+
+      function createWorldData() {
+        worldSize = testEnvJson.environment.worldSize;
+        updateSpecialTiles();
+
+        testEnvJson.prop_types.forEach((type, index) => {
+          noise.seed(
+            seed * index +
+              worldCoords[0] * worldSize +
+              worldCoords[1] * worldSize
+          );
+
+          //var smoothness = type.smoothness || defaultSmoothness;
+
+          for (i = 0; i < worldSize + 2; i++) {
+            if (!worldData[i]) {
+              worldData.push([]);
+            }
+            for (j = 0; j < worldSize + 2; j++) {
+              if (!worldData[i][j]) {
+                var tile;
+                if (
+                  Math.abs(
+                    noise.simplex2(i / defaultSmoothness, j / defaultSmoothness)
+                  ) >= type.rarity
+                ) {
+                  tile = createTile(
+                    i + "_" + j,
+                    getStartingTileType(i, j, type.name)
+                  );
+                } else {
+                  tile = createTile(
+                    i + "_" + j,
+                    getStartingTileType(i, j, null)
+                  );
+                }
+                tile.id = i + "_" + j;
+                worldData[i].push(tile);
+              }
+            }
+          }
+        });
+
+        /* for (i = 0; i < worldSize + 2; i++) {
+          if (!worldData[i]) {
+            worldData.push([]);
+          }
+          for (j = 0; j < worldSize + 2; j++) {
+            if (!worldData[i][j]) {
+              var tile = createTile(i + "_" + j, getStartingTileType(i, j));
+              tile.id = i + "_" + j;
+              worldData[i].push(tile);
+            }
+          }
+        } */
+
+        updateStats();
+      }
+      function recreateWorldData(playerDir) {
+        worldSize = testEnvJson.environment.worldSize;
+        updateSpecialTiles();
+
+        worldData = [];
+        clearCreatures();
+        selObj = null;
+
+        createWorldData();
+        drawWorld();
+
+        var playerPosX = 0;
+        var playerPosY = 0;
+        if (playerDir == "down") {
+          playerPosX = Math.round(worldSize / 2);
+          playerPosY = worldSize + 1;
+
+          worldCoords = [worldCoords[0], worldCoords[1] + 1];
+        } else if (playerDir == "up") {
+          playerPosX = Math.round(worldSize / 2);
+          playerPosY = 0;
+
+          worldCoords = [worldCoords[0], worldCoords[1] - 1];
+        } else if (playerDir == "right") {
+          playerPosX = worldSize + 1;
+          playerPosY = Math.round(worldSize / 2);
+
+          worldCoords = [worldCoords[0] - 1, worldCoords[1]];
+        } else if (playerDir == "left") {
+          playerPosX = 0;
+          playerPosY = Math.round(worldSize / 2);
+
+          worldCoords = [worldCoords[0] + 1, worldCoords[1]];
+        }
+        createCreature("player", playerPosY, playerPosX);
+
+        createCreatures();
+
+        updateStats();
+      }
+
+      function createCreatures() {
+        for (i = 0; i < testEnvJson.environment.enemyCount; i++) {
+          createCreature(
+            testEnvJson.creature_types[
+              randomRange(0, testEnvJson.creature_types.length - 1)
+            ].name,
+            Math.round(randomRange(0, worldSize)),
+            Math.round(randomRange(0, worldSize))
+          );
+        }
+      }
+
+      function drawWorld() {
+        var worldString = "";
+        for (i = 0; i < worldData.length; i++) {
+          worldString += "<tr>";
+          for (j = 0; j < worldData[i].length; j++) {
+            var tile = worldData[i][j];
+            worldString += createTileString(tile);
+          }
+          worldString += "</tr>";
+        }
+        worldTable.innerHTML = worldString;
+      }
+
+      function createTile(idString, tileType) {
+        return {
+          id: idString,
+          type: tileType,
+          creature: "",
+        };
+      }
+
+      function getStartingTileType(i, j, suggestion) {
+        var specialTile = specialTiles.find(function (e) {
+          return e.i == i && e.j == j;
+        });
+        if (specialTile) {
+          return getTileType(specialTile.type);
+        }
+
+        var suggestedTile = testEnvJson.prop_types.find(function (e) {
+          return e.name == suggestion;
+        });
+        if (suggestedTile) {
+          return suggestedTile;
+        }
+
+        if (!specialTile && Math.random() < 0.3) {
+          //return getTileType("Rock");
+          return testEnvJson.prop_types[0];
+        }
+        if (!specialTile && Math.random() < 0.2) {
+          //return testEnvJson.prop_types[randomRange(1, 2)];
+          return testEnvJson.prop_types[1];
+        }
+
+        return testEnvJson.floor_tile;
+      }
+
+      function getTileType(typeName) {
+        return (type = tileTypes.find(function (e) {
+          return e.name == typeName;
+        }));
+      }
+      function setTileType(id, tileTypeString) {
+        var idParts = id.split("_");
+
+        if (
+          (idParts[0] == "0" && idParts[1] == "0") ||
+          (idParts[0] == "0" && idParts[1] == "1")
+        ) {
+          return false;
+        }
+
+        worldData[idParts[0]][idParts[1]] = createTile(
+          id,
+          getTileType(tileTypeString)
+        );
+
+        drawWorld();
+
+        return true;
+      }
+
+      function clickTile(id) {
+        var idParts = id.split("_");
+        var tile = worldData[idParts[0]][idParts[1]];
+
+        /* if (setTileType(id, "Home")) {
+            return;
+        } */
+
+        //actOnTile(tile);
+
+        setSelObj(tile);
+      }
+      function clickCreature(creatureName, creatureNum) {
+        var creatureElement = document.getElementById(
+          creatureName + creatureNum.toString()
+        );
+
+        // TODO setSelObj(creatureElement);
+      }
+
+      function setSelObj(obj) {
+        if (selObj != obj) {
+          selObj = obj;
+        } else {
+          selObj = null;
+        }
+        drawWorld();
+      }
+
+      function getTileTypeName(tileType) {
+        var type = tileTypes.find(function (e) {
+          return e.name == tileType.name;
+        });
+        return type.name;
+      }
+
+      function getTileCreature(id) {
+        var idParts = id.split("_");
+
+        return worldData[idParts[0]][idParts[1]].creature;
+      }
+      function setTileCreature(id, creature) {
+        var idParts = id.split("_");
+        var tile = worldData[idParts[0]][idParts[1]];
+
+        tile.creature = creature;
+      }
+
+      function actOnTile(tile) {
+        if (!tile.type.act || tile.type.act == "") {
+          return;
+        }
+
+        if (tile.type.act.substring(0, 1) == "_") {
+          doSpecialAction(tile);
+          return;
+        } else {
+          tile.type = getTileType(tile.type.act);
+
+          drawWorld();
+        }
+      }
+      function doSpecialAction(tile) {
+        // TODO
+        if (tile.type.act == "_sleep") {
+          console.log("sleeping!");
+        }
+
+        drawWorld();
+      }
+
+      function createCreature(creatureName, posX, posY) {
+        numCreatures++;
+
+        // TODO multiplication by 25 should be based off tile width and spacing
+        let div = document.createElement("div");
+        if (creatureName == "player") {
+          div.innerHTML =
+            '<p style="top:' +
+            posX * 25 +
+            "; left:" +
+            posY * 25 +
+            '" id="creatureTBD" class="creature" title="creatureTBD">☺</p>';
+        } else {
+          div.innerHTML =
+            "<p " +
+            "onclick=clickCreature('" +
+            creatureName +
+            "','" +
+            numCreatures.toString() +
+            "')" +
+            ' style="top:' +
+            posX * 25 +
+            "; left:" +
+            posY * 25 +
+            '" id="creatureTBD" class="creature" title="creatureTBD">' +
+            getCreatureByName(creatureName).symbol +
+            "</p>";
+        }
+
+        div.firstChild.id = creatureName + numCreatures.toString();
+        div.firstChild.title = creatureName + numCreatures.toString();
+
+        if (creatureName != "player") {
+          div.firstChild.style.color = getCreatureByName(creatureName).color;
+        }
+
+        creaturesParent.appendChild(div);
+
+        /* if (creatureName == "player" && !firstArea) {
+          return;
+        } */
+
+        chooseNextAIAction(creatureName + numCreatures.toString());
+      }
+      function clearCreatures() {
+        while (creaturesParent.firstChild) {
+          creaturesParent.removeChild(creaturesParent.firstChild);
+        }
+        numCreatures = 0;
+      }
+      function getCreatureByName(name) {
+        for (const creature of testEnvJson.creature_types) {
+          if (creature.name == name) {
+            return creature;
+          }
+        }
+        return null;
+      }
+      function creatureMoving(creature) {
+        for (i = 0; i < movingCreatures.length; i++) {
+          if (movingCreatures[i] == creature) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      function chooseNextAIAction(creature) {
+        var creatureElement = document.getElementById(creature);
+        if (!creatureElement) {
+          return;
+        }
+
+        var tile;
+        if (creature.startsWith("player")) {
+          tile = selObj;
+        } else {
+          if (Math.random() < 0.4) {
+            createEffect(
+              "x",
+              creatureElement,
+              document.getElementById("player1")
+            );
+          }
+
+          tile = findRandomTile();
+        }
+
+        // If there is no logical tile to work
+        if (!tile) {
+          tile = findRandomTile();
+        }
+
+        moveCreature(
+          creature,
+          tile /* findRandomTileOfType(tile.type.name) */,
+          !creature.startsWith("player")
+        );
+      }
+      function moveCreature(creature, tile, doWork) {
+        if (!tile) {
+          return;
+        }
+
+        var creatureElement = document.getElementById(creature);
+        var tileElement = document.getElementById(tile.id);
+
+        if (!creatureElement) {
+          return;
+        }
+
+        if (creatureMoving(creature)) {
+          return;
+        }
+        movingCreatures.push(creature);
+
+        setTileCreature(tile.id, creature);
+
+        var posY = creatureElement.offsetTop - 20;
+        var posX = creatureElement.offsetLeft;
+        var interval = setInterval(frame, 10);
+        function frame() {
+          if (!document.body.contains(tileElement)) {
+            tileElement = document.getElementById(tile.id);
+          }
+          tilePosY = tileElement.offsetTop - 14;
+          tilePosX = tileElement.offsetLeft + 7;
+
+          if (checkPosition(posX, tilePosX, posY, tilePosY)) {
+            clearInterval(interval);
+            setTimeout(
+              function () {
+                if (creature.startsWith("player")) {
+                  if (tile.type.name == "Up") {
+                    recreateWorldData("down");
+                  } else if (tile.type.name == "Down") {
+                    recreateWorldData("up");
+                  } else if (tile.type.name == "Left") {
+                    recreateWorldData("right");
+                  } else if (tile.type.name == "Right") {
+                    recreateWorldData("left");
+                  }
+                }
+
+                if (doWork) {
+                  actOnTile(tile);
+                }
+                setTileCreature(tile.id, "");
+
+                movingCreatures = movingCreatures.filter(
+                  (item) => item !== creature
+                );
+
+                chooseNextAIAction(creature);
+              },
+              doWork ? workSpeed : 500
+            );
+          } else {
+            if (posY < tilePosY) {
+              creatureElement.style.top = posY += walkSpeed;
+            } else if (posY > tilePosY) {
+              creatureElement.style.top = posY -= walkSpeed;
+            }
+
+            if (posX < tilePosX) {
+              creatureElement.style.left = posX += walkSpeed;
+            } else if (posX > tilePosX) {
+              creatureElement.style.left = posX -= walkSpeed;
+            }
+          }
+        }
+      }
+
+      function createEffect(char, source, target) {
+        numEffects++;
+
+        let div = document.createElement("div");
+        div.innerHTML =
+          '<p id="effect" class="effect" title="effect">' + char + "</p>";
+
+        div.firstChild.id = "effect" + numEffects.toString();
+        div.firstChild.title = "effect" + numEffects.toString();
+        creaturesParent.appendChild(div);
+
+        moveEffect("effect" + numEffects.toString(), source, target);
+      }
+      function moveEffect(effect, sourceElement, targetElement) {
+        if (!targetElement) {
+          return;
+        }
+
+        var effectElement = document.getElementById(effect);
+
+        if (!effectElement) {
+          return;
+        }
+
+        if (sourceElement != null) {
+          effectElement.style.top = sourceElement.style.top;
+          effectElement.style.left = sourceElement.style.left;
+        }
+
+        var posY = effectElement.offsetTop - 20;
+        var posX = effectElement.offsetLeft;
+        var interval = setInterval(frame, 10);
+        function frame() {
+          tilePosY = targetElement.offsetTop - 14;
+          tilePosX = targetElement.offsetLeft + 7;
+
+          if (checkPosition(posX, tilePosX, posY, tilePosY)) {
+            clearInterval(interval);
+            setTimeout(function () {
+              effectElement.parentNode.remove();
+              changeStat("health", -1);
+            }, 500);
+          } else {
+            if (posY < tilePosY) {
+              effectElement.style.top = posY += walkSpeed * 1.5;
+            } else if (posY > tilePosY) {
+              effectElement.style.top = posY -= walkSpeed * 1.5;
+            }
+
+            if (posX < tilePosX) {
+              effectElement.style.left = posX += walkSpeed * 1.5;
+            } else if (posX > tilePosX) {
+              effectElement.style.left = posX -= walkSpeed * 1.5;
+            }
+          }
+        }
+      }
+
+      function getCreatureDistanceToTile(creature, i, j) {
+        var creatureElement = document.getElementById(creature);
+        var worldTile = document.getElementById(i + "_" + j);
+
+        distX = worldTile.offsetLeft - creatureElement.offsetLeft;
+        distY = worldTile.offsetTop - creatureElement.offsetTop;
+        distance = Math.sqrt(distX * distX + distY * distY);
+        return distance;
+      }
+
+      function findTileOfType(typeName) {
+        for (i = 0; i < worldSize; i++) {
+          for (j = 0; j < worldSize; j++) {
+            if (worldData[i][j].type.name == typeName) {
+              return worldData[i][j];
+            }
+          }
+        }
+      }
+      function findNearestTileOfType(creature, typeName) {
+        var minDistance = 9999;
+        var currentTile;
+        for (i = 0; i < worldSize; i++) {
+          for (j = 0; j < worldSize; j++) {
+            if (
+              worldData[i][j].type.name == typeName &&
+              getCreatureDistanceToTile(creature, i, j) < minDistance
+            ) {
+              minDistance = getCreatureDistanceToTile(creature, i, j);
+              currentTile = worldData[i][j];
+            }
+          }
+        }
+
+        return currentTile;
+      }
+      /*function findValuedTile(creature) {
+        var minDistance = 9999;
+        var currentTile;
+        for (i = 0; i < worldSize; i++) {
+          for (j = 0; j < worldSize; j++) {
+            if (
+              worldData[i][j].type.hasOwnProperty("value") &&
+              worldData[i][j].type.value > 0 &&
+              getCreatureDistanceToTile(creature, i, j) < minDistance
+            ) {
+              minDistance = getCreatureDistanceToTile(creature, i, j);
+              currentTile = worldData[i][j];
+            }
+          }
+        }
+        return currentTile;
+      }*/
+      /* function findWorkableTile(creature, baseName) {
+        var minDistance = 9999;
+        var currentTile;
+        for (i = 0; i < worldSize; i++) {
+          for (j = 0; j < worldSize; j++) {
+            if (
+              !(
+                "Water Path Pen " +
+                (baseName + "Home") +
+                " Store Rock"
+              ).includes(worldData[i][j].type.name) &&
+              !worldData[i][j].watered &&
+              getCreatureDistanceToTile(creature, i, j) < minDistance
+            ) {
+              minDistance = getCreatureDistanceToTile(creature, i, j);
+              currentTile = worldData[i][j];
+            }
+          }
+        }
+        return currentTile;
+      } */
+      function findRandomTile() {
+        return worldData[randomRange(0, worldSize - 1)][
+          randomRange(0, worldSize - 1)
+        ];
+      }
+      function findRandomTileOfType(typeName) {
+        var rVal = 0;
+        var currentTile;
+        for (i = 0; i < worldSize; i++) {
+          for (j = 0; j < worldSize; j++) {
+            var randomVal = Math.random();
+            if (worldData[i][j].type.name == typeName && randomVal > rVal) {
+              rVal = randomVal;
+              currentTile = worldData[i][j];
+            }
+          }
+        }
+        return currentTile;
+      }
+      function findTileWithCreature(creature) {
+        for (i = 0; i < worldSize; i++) {
+          for (j = 0; j < worldSize; j++) {
+            if (worldData[i][j].creature.startsWith(creature)) {
+              return worldData[i][j];
+            }
+          }
+        }
+      }
+      function findTileWithID(id) {
+        for (i = 0; i < worldSize; i++) {
+          for (j = 0; j < worldSize; j++) {
+            if (worldData[i][j].id == id) {
+              return worldData[i][j];
+            }
+          }
+        }
+      }
+
+      function checkPosition(x, x2, y, y2) {
+        return Math.abs(x - x2) + Math.abs(y - y2) < walkSpeed + 0.1;
+      }
+      function randomRange(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      function changeStat(stat, amount) {
+        if (stat == "health") {
+          health += amount;
+        }
+
+        updateStats();
+      }
+      function addItem(addItem, amount) {
+        var added = false;
+
+        for (i = 0; i < items.length; i++) {
+          if (items[i][0] == addItem) {
+            items[i][1] += amount;
+            added = true;
+          }
+        }
+
+        if (!added) {
+          items.push([addItem, amount]);
+        }
+
+        updateStats();
+      }
+      function removeItem(removeItem, amount) {
+        for (i = 0; i < items.length; i++) {
+          if (items[i][0] == removeItem) {
+            items[i][1] -= amount;
+
+            if (items[i][1] <= 0) {
+              items = items.filter((item) => item[0] !== removeItem);
+            }
+          }
+        }
+
+        updateStats();
+      }
+
+      /*function save() {
+        var saveString = "";
+
+        saveString += points.toString() + "*";
+        saveString += day.toString() + "*";
+        saveString += numHouses.toString() + "*";
+        saveString += cowHouses.toString() + "*";
+        saveString += purchasedUpgradeString + "*";
+        for (x = 0; x < worldSize; x++) {
+          for (y = 0; y < worldSize; y++) {
+            var tile = worldData[x][y];
+            saveString += saveTileToString(tile) + "+";
+          }
+        }
+
+        document.getElementById("save").value = saveString;
+      }
+      function load() {
+        var loadElement = document.getElementById("load");
+
+        var loadString = loadElement.value.split("*");
+
+        points = parseInt(loadString[0]);
+        day = parseInt(loadString[1]);
+        numHouses = parseInt(loadString[2]);
+        cowHouses = parseInt(loadString[3]);
+        var upgradeString = loadString[4].split("+");
+        for (upg = 0; upg < upgradeString.length - 1; upg++) {
+          switch (upgradeString[upg]) {
+            case "world":
+              purchaseUpgrade(getUpgrade("world"), true);
+              break;
+            case "shoes":
+              purchaseUpgrade(getUpgrade("shoes"), true);
+              break;
+            case "tool":
+              purchaseUpgrade(getUpgrade("tool"), true);
+              break;
+            case "wc":
+              purchaseUpgrade(getUpgrade("wc"), true);
+              break;
+            case "fertilizer":
+              purchaseUpgrade(getUpgrade("fertilizer"), true);
+              break;
+            case "worlders":
+              purchaseUpgrade(getUpgrade("worlders"), true);
+              break;
+            case "cows":
+              purchaseUpgrade(getUpgrade("cows"), true);
+              break;
+          }
+        }
+
+        var worldDataString = loadString[5].split("+");
+        for (fd = 0; fd < worldDataString.length - 1; fd++) {
+          loadTileFromString(worldDataString[fd]);
+        }
+
+        drawWorld();
+      }
+
+      function saveTileToString(tile) {
+        return tile.id + "&" + tile.watered + "&" + getTileTypeName(tile.type);
+      }
+      function loadTileFromString(tileString) {
+        var tileData = tileString.split("&");
+
+        setTileType(tileData[0], tileData[2]);
+
+        var idParts = tileData[0].split("_");
+        worldData[idParts[0]][idParts[1]].watered = tileData[1] === "true";
+      }*/
+
+      function createTileString(tile) {
+        return (
+          "<td class='tile' " +
+          " id='" +
+          tile.id +
+          "'" +
+          " style='color:" +
+          tile.type.color +
+          ";" +
+          " background-color: " +
+          getTileBackgroundColor(tile) +
+          ";" +
+          getBorderStyle(tile) +
+          /* getOpacity(tile) */ "" +
+          "; user-select: none; '" +
+          " onclick='clickTile(this.id)' " +
+          " title='" +
+          tile.type.name +
+          "'" +
+          ">" +
+          tile.type.symbol
+        );
+        ("</td>");
+      }
+      function getTileBackgroundColor(tile) {
+        if (selObj == tile) {
+          return "#ffff99";
+        } else {
+          return tile.type.backgroundColor
+            ? tile.type.backgroundColor
+            : "#ccffb3";
+        }
+      }
+      function getTileBorderColor(tile) {
+        if (selObj == tile) {
+          return "#ffff99";
+        } else {
+          return tile.type.backgroundColor
+            ? darkenColor(tile.type.backgroundColor, 20)
+            : "#4ce600";
+        }
+      }
+      function getBorderStyle(tile) {
+        var tileString = "";
+        var borderString = " 2pt solid " + getTileBorderColor(tile) + "; ";
+        tileString += " border-bottom: " + borderString + ";";
+        tileString += " border-top: " + borderString + ";";
+        tileString += " border-right: " + borderString + ";";
+        tileString += " border-left: " + borderString + ";";
+        return tileString;
+      }
+      /*function getOpacity(tile) {
+        if (
+          parseInt(tile.id.split("_")[0]) > worldSize ||
+          parseInt(tile.id.split("_")[1]) > worldSize
+        ) {
+          return " opacity: .2; ";
+        }
+
+        if (
+          parseInt(tile.id.split("_")[0]) > worldSize - 1 ||
+          parseInt(tile.id.split("_")[1]) > worldSize - 1
+        ) {
+          return " opacity: .5; ";
+        }
+        return "";
+      }*/
+
+      function getCreatureBackgroundColor(creature) {
+        // TODO
+        if (selObj == creature) {
+          return "#ffff9980";
+        } else {
+          return "#0000ffff";
+        }
+      }
+
+      function darkenColor(hexColor, percentage) {
+        // Remove the "#" symbol if present
+        hexColor = hexColor.replace("#", "");
+
+        // Convert the hexadecimal color to RGB values
+        const r = parseInt(hexColor.substring(0, 2), 16);
+        const g = parseInt(hexColor.substring(2, 4), 16);
+        const b = parseInt(hexColor.substring(4, 6), 16);
+
+        // Calculate the darker RGB values based on the percentage
+        const darkerR = Math.floor(r * (1 - percentage / 100));
+        const darkerG = Math.floor(g * (1 - percentage / 100));
+        const darkerB = Math.floor(b * (1 - percentage / 100));
+
+        // Convert the darker RGB values back to hexadecimal color
+        const darkerHexColor =
+          "#" +
+          darkerR.toString(16).padStart(2, "0") +
+          darkerG.toString(16).padStart(2, "0") +
+          darkerB.toString(16).padStart(2, "0");
+
+        return darkerHexColor;
+      }
+    </script>
+
+    <style>
+      .tile {
+        width: 20px;
+        height: 10px;
+        text-align: center;
+        font-weight: bold;
+      }
+      .creature {
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+        color: rgb(204, 51, 0);
+        text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+        font-size: 14pt;
+        font-weight: bold;
+        padding-top: 2px;
+        padding-left: 2px;
+        user-select: none;
+      }
+      .effect {
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+        color: #cc3300;
+        text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+        font-size: 14pt;
+        font-weight: bold;
+        padding-top: 2px;
+        padding-left: 2px;
+        user-select: none;
+      }
+    </style>
+  </head>
+
+  <body style="overflow: hidden">
+    <table style="padding: 0px" id="world"></table>
+    <p id="creatures"></p>
+    <div id="healthDiv"></div>
+    <br />
+    <div id="itemsDiv"></div>
+    <!-- <div>
+      <br />
+      <button onclick="save()">Save</button>
+      <input id="save" style="user-select: none" />
+    </div>
+    <div id="loading" style="display: inline">
+      <input id="load" />
+      <button onclick="load()">Load</button>
+    </div> -->
+  </body>
+</html>
+
+<script>
+  /*
+   * src="perlin.js"
+   * A speed-improved perlin and simplex noise algorithms for 2D.
+   *
+   * Based on example code by Stefan Gustavson (stegu@itn.liu.se).
+   * Optimisations by Peter Eastman (peastman@drizzle.stanford.edu).
+   * Better rank ordering method by Stefan Gustavson in 2012.
+   * Converted to Javascript by Joseph Gentle.
+   *
+   * Version 2012-03-09
+   *
+   * This code was placed in the public domain by its original author,
+   * Stefan Gustavson. You may use it as you see fit, but
+   * attribution is appreciated.
+   *
+   */
+
+  (function (global) {
+    var module = (global.noise = {});
+
+    function Grad(x, y, z) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
+    }
+
+    Grad.prototype.dot2 = function (x, y) {
+      return this.x * x + this.y * y;
+    };
+
+    Grad.prototype.dot3 = function (x, y, z) {
+      return this.x * x + this.y * y + this.z * z;
+    };
+
+    var grad3 = [
+      new Grad(1, 1, 0),
+      new Grad(-1, 1, 0),
+      new Grad(1, -1, 0),
+      new Grad(-1, -1, 0),
+      new Grad(1, 0, 1),
+      new Grad(-1, 0, 1),
+      new Grad(1, 0, -1),
+      new Grad(-1, 0, -1),
+      new Grad(0, 1, 1),
+      new Grad(0, -1, 1),
+      new Grad(0, 1, -1),
+      new Grad(0, -1, -1),
+    ];
+
+    var p = [
+      151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225,
+      140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23, 190, 6, 148, 247,
+      120, 234, 75, 0, 26, 197, 62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177,
+      33, 88, 237, 149, 56, 87, 174, 20, 125, 136, 171, 168, 68, 175, 74, 165,
+      71, 134, 139, 48, 27, 166, 77, 146, 158, 231, 83, 111, 229, 122, 60, 211,
+      133, 230, 220, 105, 92, 41, 55, 46, 245, 40, 244, 102, 143, 54, 65, 25,
+      63, 161, 1, 216, 80, 73, 209, 76, 132, 187, 208, 89, 18, 169, 200, 196,
+      135, 130, 116, 188, 159, 86, 164, 100, 109, 198, 173, 186, 3, 64, 52, 217,
+      226, 250, 124, 123, 5, 202, 38, 147, 118, 126, 255, 82, 85, 212, 207, 206,
+      59, 227, 47, 16, 58, 17, 182, 189, 28, 42, 223, 183, 170, 213, 119, 248,
+      152, 2, 44, 154, 163, 70, 221, 153, 101, 155, 167, 43, 172, 9, 129, 22,
+      39, 253, 19, 98, 108, 110, 79, 113, 224, 232, 178, 185, 112, 104, 218,
+      246, 97, 228, 251, 34, 242, 193, 238, 210, 144, 12, 191, 179, 162, 241,
+      81, 51, 145, 235, 249, 14, 239, 107, 49, 192, 214, 31, 181, 199, 106, 157,
+      184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254, 138, 236, 205, 93,
+      222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180,
+    ];
+    // To remove the need for index wrapping, double the permutation table length
+    var perm = new Array(512);
+    var gradP = new Array(512);
+
+    // This isn't a very good seeding function, but it works ok. It supports 2^16
+    // different seed values. Write something better if you need more seeds.
+    module.seed = function (seed) {
+      if (seed > 0 && seed < 1) {
+        // Scale the seed out
+        seed *= 65536;
+      }
+
+      seed = Math.floor(seed);
+      if (seed < 256) {
+        seed |= seed << 8;
+      }
+
+      for (var i = 0; i < 256; i++) {
+        var v;
+        if (i & 1) {
+          v = p[i] ^ (seed & 255);
+        } else {
+          v = p[i] ^ ((seed >> 8) & 255);
+        }
+
+        perm[i] = perm[i + 256] = v;
+        gradP[i] = gradP[i + 256] = grad3[v % 12];
+      }
+    };
+
+    module.seed(0);
+
+    /*
+  for(var i=0; i<256; i++) {
+    perm[i] = perm[i + 256] = p[i];
+    gradP[i] = gradP[i + 256] = grad3[perm[i] % 12];
+  }*/
+
+    // Skewing and unskewing factors for 2, 3, and 4 dimensions
+    var F2 = 0.5 * (Math.sqrt(3) - 1);
+    var G2 = (3 - Math.sqrt(3)) / 6;
+
+    var F3 = 1 / 3;
+    var G3 = 1 / 6;
+
+    // 2D simplex noise
+    module.simplex2 = function (xin, yin) {
+      var n0, n1, n2; // Noise contributions from the three corners
+      // Skew the input space to determine which simplex cell we're in
+      var s = (xin + yin) * F2; // Hairy factor for 2D
+      var i = Math.floor(xin + s);
+      var j = Math.floor(yin + s);
+      var t = (i + j) * G2;
+      var x0 = xin - i + t; // The x,y distances from the cell origin, unskewed.
+      var y0 = yin - j + t;
+      // For the 2D case, the simplex shape is an equilateral triangle.
+      // Determine which simplex we are in.
+      var i1, j1; // Offsets for second (middle) corner of simplex in (i,j) coords
+      if (x0 > y0) {
+        // lower triangle, XY order: (0,0)->(1,0)->(1,1)
+        i1 = 1;
+        j1 = 0;
+      } else {
+        // upper triangle, YX order: (0,0)->(0,1)->(1,1)
+        i1 = 0;
+        j1 = 1;
+      }
+      // A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and
+      // a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y), where
+      // c = (3-sqrt(3))/6
+      var x1 = x0 - i1 + G2; // Offsets for middle corner in (x,y) unskewed coords
+      var y1 = y0 - j1 + G2;
+      var x2 = x0 - 1 + 2 * G2; // Offsets for last corner in (x,y) unskewed coords
+      var y2 = y0 - 1 + 2 * G2;
+      // Work out the hashed gradient indices of the three simplex corners
+      i &= 255;
+      j &= 255;
+      var gi0 = gradP[i + perm[j]];
+      var gi1 = gradP[i + i1 + perm[j + j1]];
+      var gi2 = gradP[i + 1 + perm[j + 1]];
+      // Calculate the contribution from the three corners
+      var t0 = 0.5 - x0 * x0 - y0 * y0;
+      if (t0 < 0) {
+        n0 = 0;
+      } else {
+        t0 *= t0;
+        n0 = t0 * t0 * gi0.dot2(x0, y0); // (x,y) of grad3 used for 2D gradient
+      }
+      var t1 = 0.5 - x1 * x1 - y1 * y1;
+      if (t1 < 0) {
+        n1 = 0;
+      } else {
+        t1 *= t1;
+        n1 = t1 * t1 * gi1.dot2(x1, y1);
+      }
+      var t2 = 0.5 - x2 * x2 - y2 * y2;
+      if (t2 < 0) {
+        n2 = 0;
+      } else {
+        t2 *= t2;
+        n2 = t2 * t2 * gi2.dot2(x2, y2);
+      }
+      // Add contributions from each corner to get the final noise value.
+      // The result is scaled to return values in the interval [-1,1].
+      return 70 * (n0 + n1 + n2);
+    };
+
+    // 3D simplex noise
+    module.simplex3 = function (xin, yin, zin) {
+      var n0, n1, n2, n3; // Noise contributions from the four corners
+
+      // Skew the input space to determine which simplex cell we're in
+      var s = (xin + yin + zin) * F3; // Hairy factor for 2D
+      var i = Math.floor(xin + s);
+      var j = Math.floor(yin + s);
+      var k = Math.floor(zin + s);
+
+      var t = (i + j + k) * G3;
+      var x0 = xin - i + t; // The x,y distances from the cell origin, unskewed.
+      var y0 = yin - j + t;
+      var z0 = zin - k + t;
+
+      // For the 3D case, the simplex shape is a slightly irregular tetrahedron.
+      // Determine which simplex we are in.
+      var i1, j1, k1; // Offsets for second corner of simplex in (i,j,k) coords
+      var i2, j2, k2; // Offsets for third corner of simplex in (i,j,k) coords
+      if (x0 >= y0) {
+        if (y0 >= z0) {
+          i1 = 1;
+          j1 = 0;
+          k1 = 0;
+          i2 = 1;
+          j2 = 1;
+          k2 = 0;
+        } else if (x0 >= z0) {
+          i1 = 1;
+          j1 = 0;
+          k1 = 0;
+          i2 = 1;
+          j2 = 0;
+          k2 = 1;
+        } else {
+          i1 = 0;
+          j1 = 0;
+          k1 = 1;
+          i2 = 1;
+          j2 = 0;
+          k2 = 1;
+        }
+      } else {
+        if (y0 < z0) {
+          i1 = 0;
+          j1 = 0;
+          k1 = 1;
+          i2 = 0;
+          j2 = 1;
+          k2 = 1;
+        } else if (x0 < z0) {
+          i1 = 0;
+          j1 = 1;
+          k1 = 0;
+          i2 = 0;
+          j2 = 1;
+          k2 = 1;
+        } else {
+          i1 = 0;
+          j1 = 1;
+          k1 = 0;
+          i2 = 1;
+          j2 = 1;
+          k2 = 0;
+        }
+      }
+      // A step of (1,0,0) in (i,j,k) means a step of (1-c,-c,-c) in (x,y,z),
+      // a step of (0,1,0) in (i,j,k) means a step of (-c,1-c,-c) in (x,y,z), and
+      // a step of (0,0,1) in (i,j,k) means a step of (-c,-c,1-c) in (x,y,z), where
+      // c = 1/6.
+      var x1 = x0 - i1 + G3; // Offsets for second corner
+      var y1 = y0 - j1 + G3;
+      var z1 = z0 - k1 + G3;
+
+      var x2 = x0 - i2 + 2 * G3; // Offsets for third corner
+      var y2 = y0 - j2 + 2 * G3;
+      var z2 = z0 - k2 + 2 * G3;
+
+      var x3 = x0 - 1 + 3 * G3; // Offsets for fourth corner
+      var y3 = y0 - 1 + 3 * G3;
+      var z3 = z0 - 1 + 3 * G3;
+
+      // Work out the hashed gradient indices of the four simplex corners
+      i &= 255;
+      j &= 255;
+      k &= 255;
+      var gi0 = gradP[i + perm[j + perm[k]]];
+      var gi1 = gradP[i + i1 + perm[j + j1 + perm[k + k1]]];
+      var gi2 = gradP[i + i2 + perm[j + j2 + perm[k + k2]]];
+      var gi3 = gradP[i + 1 + perm[j + 1 + perm[k + 1]]];
+
+      // Calculate the contribution from the four corners
+      var t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
+      if (t0 < 0) {
+        n0 = 0;
+      } else {
+        t0 *= t0;
+        n0 = t0 * t0 * gi0.dot3(x0, y0, z0); // (x,y) of grad3 used for 2D gradient
+      }
+      var t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
+      if (t1 < 0) {
+        n1 = 0;
+      } else {
+        t1 *= t1;
+        n1 = t1 * t1 * gi1.dot3(x1, y1, z1);
+      }
+      var t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
+      if (t2 < 0) {
+        n2 = 0;
+      } else {
+        t2 *= t2;
+        n2 = t2 * t2 * gi2.dot3(x2, y2, z2);
+      }
+      var t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
+      if (t3 < 0) {
+        n3 = 0;
+      } else {
+        t3 *= t3;
+        n3 = t3 * t3 * gi3.dot3(x3, y3, z3);
+      }
+      // Add contributions from each corner to get the final noise value.
+      // The result is scaled to return values in the interval [-1,1].
+      return 32 * (n0 + n1 + n2 + n3);
+    };
+
+    // ##### Perlin noise stuff
+
+    function fade(t) {
+      return t * t * t * (t * (t * 6 - 15) + 10);
+    }
+
+    function lerp(a, b, t) {
+      return (1 - t) * a + t * b;
+    }
+
+    // 2D Perlin Noise
+    module.perlin2 = function (x, y) {
+      // Find unit grid cell containing point
+      var X = Math.floor(x),
+        Y = Math.floor(y);
+      // Get relative xy coordinates of point within that cell
+      x = x - X;
+      y = y - Y;
+      // Wrap the integer cells at 255 (smaller integer period can be introduced here)
+      X = X & 255;
+      Y = Y & 255;
+
+      // Calculate noise contributions from each of the four corners
+      var n00 = gradP[X + perm[Y]].dot2(x, y);
+      var n01 = gradP[X + perm[Y + 1]].dot2(x, y - 1);
+      var n10 = gradP[X + 1 + perm[Y]].dot2(x - 1, y);
+      var n11 = gradP[X + 1 + perm[Y + 1]].dot2(x - 1, y - 1);
+
+      // Compute the fade curve value for x
+      var u = fade(x);
+
+      // Interpolate the four results
+      return lerp(lerp(n00, n10, u), lerp(n01, n11, u), fade(y));
+    };
+
+    // 3D Perlin Noise
+    module.perlin3 = function (x, y, z) {
+      // Find unit grid cell containing point
+      var X = Math.floor(x),
+        Y = Math.floor(y),
+        Z = Math.floor(z);
+      // Get relative xyz coordinates of point within that cell
+      x = x - X;
+      y = y - Y;
+      z = z - Z;
+      // Wrap the integer cells at 255 (smaller integer period can be introduced here)
+      X = X & 255;
+      Y = Y & 255;
+      Z = Z & 255;
+
+      // Calculate noise contributions from each of the eight corners
+      var n000 = gradP[X + perm[Y + perm[Z]]].dot3(x, y, z);
+      var n001 = gradP[X + perm[Y + perm[Z + 1]]].dot3(x, y, z - 1);
+      var n010 = gradP[X + perm[Y + 1 + perm[Z]]].dot3(x, y - 1, z);
+      var n011 = gradP[X + perm[Y + 1 + perm[Z + 1]]].dot3(x, y - 1, z - 1);
+      var n100 = gradP[X + 1 + perm[Y + perm[Z]]].dot3(x - 1, y, z);
+      var n101 = gradP[X + 1 + perm[Y + perm[Z + 1]]].dot3(x - 1, y, z - 1);
+      var n110 = gradP[X + 1 + perm[Y + 1 + perm[Z]]].dot3(x - 1, y - 1, z);
+      var n111 = gradP[X + 1 + perm[Y + 1 + perm[Z + 1]]].dot3(
+        x - 1,
+        y - 1,
+        z - 1
+      );
+
+      // Compute the fade curve value for x, y, z
+      var u = fade(x);
+      var v = fade(y);
+      var w = fade(z);
+
+      // Interpolate
+      return lerp(
+        lerp(lerp(n000, n100, u), lerp(n001, n101, u), w),
+        lerp(lerp(n010, n110, u), lerp(n011, n111, u), w),
+        v
+      );
+    };
+  })(this);
+</script>

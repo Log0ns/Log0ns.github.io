@@ -13,9 +13,12 @@ loginLink.addEventListener('click', ()=> {
 });
 
 btnPopup.addEventListener('click', ()=> {
-    loginPopup();
+    loginPopup(false);
 });
-function loginPopup() {
+function loginPopup(dropdown) {
+    if (dropdown) {
+      toggleDropdown();
+    }
     wrapper.classList.add('active-popup');
 }
 
@@ -36,14 +39,20 @@ document.addEventListener("DOMContentLoaded", function() {
     var bodyElement = document.querySelector("body");
   
     if (currentTime >= 6 && currentTime < 12) {
-      // Morning
-      bodyElement.style.backgroundImage = "url('morning-background.jpg')";
+      // bodyElement.style.backgroundImage = "url('morning-background.jpg')";
+      bodyElement.classList.toggle("morning", true);
+      bodyElement.classList.toggle("afternoon", false);
+      bodyElement.classList.toggle("evening", false);
     } else if (currentTime >= 12 && currentTime < 18) {
-      // Afternoon
-      bodyElement.style.backgroundImage = "url('afternoon-background.jpg')";
+      // bodyElement.style.backgroundImage = "url('afternoon-background.jpg')";
+      bodyElement.classList.toggle("morning", false);
+      bodyElement.classList.toggle("afternoon", true);
+      bodyElement.classList.toggle("evening", false);
     } else {
-      // Evening/Night
-      bodyElement.style.backgroundImage = "url('evening-background.jpg')";
+      // bodyElement.style.backgroundImage = "url('evening-background.jpg')";
+      bodyElement.classList.toggle("morning", false);
+      bodyElement.classList.toggle("afternoon", false);
+      bodyElement.classList.toggle("evening", true);
     }
   });
   

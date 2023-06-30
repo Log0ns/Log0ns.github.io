@@ -16,6 +16,23 @@ body {
     background-size: cover;
     background-position: center;
 }
+
+/* TIME */
+body.morning {
+    background: url('morning-background.jpg') no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+body.afternoon {
+    background: url('afternoon-background.jpg') no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+body.evening {
+    background: url('evening-background.jpg') no-repeat;
+    background-size: cover;
+    background-position: center;
+}
  
 header {
     position: fixed;
@@ -23,11 +40,10 @@ header {
     left: 0;
     width: 100%;
     padding: 20px 100px;
-    /* background: skyblue; */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    z-index: 99;
+    /* z-index: 99; */
 }
 
 .logo {
@@ -82,13 +98,16 @@ header {
     .dropdown-content {
       display: none;
       position: absolute;
-      transform: translateY(22%);
+      top: 80%;
+      right: 15px;
       background: snow;
       min-width: 160px;
       box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
       z-index: 2;
       border-radius: 20px;
       overflow: hidden;
+      user-select: none;
+      cursor: pointer;
     }
   
     .dropdown-content a {
@@ -115,7 +134,6 @@ header {
         font-size: 1.1em;
         color: snow;
         font-weight: 500;
-        margin-left: 40px;
         transition: .2s;
         overflow: hidden;
     }
@@ -222,6 +240,17 @@ header {
     text-align: center;
 }
 
+/* TIME */
+body.morning .form-box h2 {
+    color: snow;
+}
+body.afternoon .form-box h2 {
+    color: midnightblue;
+}
+body.evening .form-box h2 {
+    color: snow;
+}
+
 .input-box {
     position: relative;
     width: 100%;
@@ -230,9 +259,21 @@ header {
     margin: 30px 0;
 }
 
+/* TIME */
+body.morning .input-box {
+    border-bottom: 2px solid snow;
+}
+body.afternoon .input-box {
+    border-bottom: 2px solid midnightblue;
+}
+body.evening .input-box {
+    border-bottom: 2px solid snow;
+}
+
 .input-box label {
     position: absolute;
     top: 50%;
+    top: -5px;
     left: 5px;
     transform: translateY(-50%);
     font-size: 1em;
@@ -242,10 +283,21 @@ header {
     transition: .2s;
 }
 
-.input-box input:focus~label,
+/* TIME */
+body.morning .input-box label {
+    color: snow;
+}
+body.afternoon .input-box label {
+    color: midnightblue;
+}
+body.evening .input-box label {
+    color: snow;
+}
+
+/* .input-box input:focus~label,
 .input-box input:valid~label {
     top: -5px;
-}
+} */
 
 .input-box input {
     width: 100%;
@@ -259,12 +311,34 @@ header {
     padding: 0 35px 0 5px;
 }
 
+/* TIME */
+body.morning .input-box input {
+    color: snow;
+}
+body.afternoon .input-box input {
+    color: midnightblue;
+}
+body.evening .input-box input {
+    color: snow;
+}
+
 .input-box .icon {
     position: absolute;
     right: 8px;
     font-size: 1.2em;
     color: midnightblue;
     line-height: 57px;
+}
+
+/* TIME */
+body.morning .icon {
+    color: snow;
+}
+body.afternoon .icon {
+    color: midnightblue;
+}
+body.evening .icon {
+    color: snow;
 }
 
 .remember-forgot {
@@ -276,14 +350,47 @@ header {
     justify-content: space-between;
 }
 
+/* TIME */
+body.morning .remember-forgot {
+    color: snow;
+}
+body.afternoon .remember-forgot {
+    color: midnightblue;
+}
+body.evening .remember-forgot {
+    color: snow;
+}
+
 .remember-forgot label input {
     accent-color: midnightblue;
     margin-right: 3px;
 }
 
+/* TIME */
+body.morning .remember-forgot label input {
+    accent-color: snow;
+}
+body.afternoon .remember-forgot label input {
+    accent-color: midnightblue;
+}
+body.evening .remember-forgot label input {
+    accent-color: snow;
+}
+
 .remember-forgot a {
     color: midnightblue;
     text-decoration: none;
+}
+
+/* TIME */
+body.morning .remember-forgot a {
+    color: snow;
+}
+body.afternoon .remember-forgot a {
+    color: midnightblue;
+}
+body.evening .remember-forgot a {
+    color: snow;
 }
 
 .remember-forgot a:hover {
@@ -305,8 +412,33 @@ header {
     transition: .2s;
 }
 
+/* TIME */
+body.morning .btn {
+    border: 2px solid snow;
+    color: snow;
+}
+body.afternoon .btn {
+    border: 2px solid snow;
+    color: midnightblue;
+}
+body.evening .btn {
+    border: 2px solid snow;
+    color: snow;
+}
+
 .btn:hover {
     background: midnightblue;
+    color: snow;
+}
+
+/* TIME */
+body.morning .btn:hover {
+    color: snow;
+}
+body.afternoon .btn:hover {
+    color: midnightblue;
+}
+body.evening .btn:hover {
     color: snow;
 }
 
@@ -318,10 +450,32 @@ header {
     margin: 25px 0 10px;
 }
 
+/* TIME */
+body.morning .login-register {
+    color: snow;
+}
+body.afternoon .login-register {
+    color: midnightblue;
+}
+body.evening .login-register {
+    color: snow;
+}
+
 .login-register p a {
     color: midnightblue;
     text-decoration: none;
     font-weight: 600;
+}
+
+/* TIME */
+body.morning .login-register p a {
+    color: snow;
+}
+body.afternoon .login-register p a {
+    color: midnightblue;
+}
+body.evening .login-register p a {
+    color: snow;
 }
 
 .login-register p a:hover {

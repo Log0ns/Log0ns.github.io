@@ -19,17 +19,17 @@ body {
 
 /* TIME */
 body.morning {
-    background: url('morning-background.jpg') no-repeat;
+    background: url('/images/morning-background.jpg') no-repeat;
     background-size: cover;
     background-position: center;
 }
 body.afternoon {
-    background: url('afternoon-background.jpg') no-repeat;
+    background: url('/images/afternoon-background.jpg') no-repeat;
     background-size: cover;
     background-position: center;
 }
 body.evening {
-    background: url('evening-background.jpg') no-repeat;
+    background: url('/images/evening-background.jpg') no-repeat;
     background-size: cover;
     background-position: center;
 }

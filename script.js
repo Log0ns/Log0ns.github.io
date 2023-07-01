@@ -55,4 +55,96 @@ document.addEventListener("DOMContentLoaded", function() {
       bodyElement.classList.toggle("evening", true);
     }
   });
-  
+
+/* SERVER */
+
+document.addEventListener('DOMContentLoaded', () => {
+    const registerForm = document.getElementById('registerForm');
+    const loginForm = document.getElementById('loginForm');
+    //const deleteForm = document.getElementById('deleteForm');
+
+    registerForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const username = registerForm.querySelector('#username').value;
+        const password = registerForm.querySelector('#password').value;
+
+        registerUser(username, password);
+    });
+
+    loginForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const username = loginForm.querySelector('#username').value;
+        const password = loginForm.querySelector('#password').value;
+
+        loginUser(username, password);
+    });
+
+    /*deleteForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const username = deleteForm.querySelector('#username').value;
+
+        deleteUser(username);
+    });*/
+
+    function registerUser(username, password) {
+        const userData = {
+            username,
+            password
+        };
+
+        fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        })
+            .then(response => response.text())
+            .then(message => {
+                console.log(message);
+                registerForm.reset();
+            })
+            .catch(error => console.error(error));
+    }
+
+    function loginUser(username, password) {
+        const userData = {
+            username,
+            password
+        };
+
+        fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        })
+            .then(response => response.text())
+            .then(message => {
+                console.log(message);
+                loginForm.reset();
+            })
+            .catch(error => console.error(error));
+    }
+
+    /*function deleteUser(username) {
+        const userData = {
+            username
+        };
+
+        fetch('/delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        })
+            .then(response => response.text())
+            .then(message => {
+                console.log(message);
+                deleteForm.reset();
+            })
+            .catch(error => console.error(error));
+    }*/
+});

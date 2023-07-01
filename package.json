@@ -1,0 +1,22 @@
+{
+  "name": "commune",
+  "version": "1.0.0",
+  "description": "",
+  "main": "myfirst.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Log0ns/Log0ns.github.io.git"
+  },
+  "author": "Logan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Log0ns/Log0ns.github.io/issues"
+  },
+  "homepage": "https://github.com/Log0ns/Log0ns.github.io#readme",
+  "dependencies": {
+    "mysql": "^2.18.1"
+  }
+}

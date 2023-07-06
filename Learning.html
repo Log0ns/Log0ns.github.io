@@ -66,7 +66,8 @@
       var numEffects = 0;
       var walkSpeed = 0.9;
       var workSpeed = 1000;
-      var selObj;
+      var selTile;
+      var selCreature;
       var firstArea = true;
       var defaultSmoothness = 15; // TODO noise scale
 
@@ -219,7 +220,8 @@
 
         worldData = [];
         clearCreatures();
-        selObj = null;
+        selTile = null;
+        selCreature = null;
 
         createWorldData();
         drawWorld();
@@ -349,23 +351,38 @@
 
         //actOnTile(tile);
 
-        setSelObj(tile);
+        if (selCreature) {
+          setSelCreature(selCreature);
+        }
+        setSelTile(tile);
       }
       function clickCreature(creatureName, creatureNum) {
         var creatureElement = document.getElementById(
           creatureName + creatureNum.toString()
         );
 
-        // TODO setSelObj(creatureElement);
+        if (selTile) {
+          setSelTile(selTile);
+        }
+        setSelCreature(creatureElement);
       }
 
-      function setSelObj(obj) {
-        if (selObj != obj) {
-          selObj = obj;
+      function setSelTile(tile) {
+        if (selTile != tile) {
+          selTile = tile;
         } else {
-          selObj = null;
+          selTile = null;
         }
         drawWorld();
+      }
+      function setSelCreature(creature) {
+        if (selCreature != creature) {
+          selCreature = creature;
+          selCreature.style.backgroundColor = "rgb(255, 0, 0)";
+        } else {
+          selCreature.style.backgroundColor = "";
+          selCreature = null;
+        }
       }
 
       function getTileTypeName(tileType) {
@@ -477,6 +494,18 @@
         return false;
       }
 
+      function checkObjectType(obj) {
+        if (typeof obj === "object") {
+          if (obj instanceof HTMLElement) {
+            return "creature";
+          } else {
+            return "tile";
+          }
+        } else {
+          return "neither";
+        }
+      }
+
       function chooseNextAIAction(creature) {
         var creatureElement = document.getElementById(creature);
         if (!creatureElement) {
@@ -485,7 +514,11 @@
 
         var tile;
         if (creature.startsWith("player")) {
-          tile = selObj;
+          if (selCreature != null) {
+            tile = selCreature;
+          } else {
+            tile = selTile;
+          }
         } else {
           if (Math.random() < 0.4) {
             createEffect(
@@ -509,13 +542,21 @@
           !creature.startsWith("player")
         );
       }
-      function moveCreature(creature, tile, doWork) {
-        if (!tile) {
+      function moveCreature(creature, targetOrTile, doWork) {
+        if (!targetOrTile) {
           return;
         }
 
+        var isTile = checkObjectType(targetOrTile) == "tile";
+
         var creatureElement = document.getElementById(creature);
-        var tileElement = document.getElementById(tile.id);
+        var targetElement;
+
+        if (isTile) {
+          targetElement = document.getElementById(targetOrTile.id);
+        } else {
+          targetElement = targetOrTile;
+        }
 
         if (!creatureElement) {
           return;
@@ -526,38 +567,48 @@
         }
         movingCreatures.push(creature);
 
-        setTileCreature(tile.id, creature);
+        if (isTile) {
+          setTileCreature(targetOrTile.id, creature);
+        }
 
         var posY = creatureElement.offsetTop - 20;
         var posX = creatureElement.offsetLeft;
         var interval = setInterval(frame, 10);
         function frame() {
-          if (!document.body.contains(tileElement)) {
-            tileElement = document.getElementById(tile.id);
+          if (!document.body.contains(targetElement)) {
+            if (isTile) {
+              targetElement = document.getElementById(targetOrTile.id);
+            } else {
+              targetElement = targetOrTile;
+            }
           }
-          tilePosY = tileElement.offsetTop - 14;
-          tilePosX = tileElement.offsetLeft + 7;
+
+          tilePosY = targetElement.offsetTop - 14;
+          tilePosX = targetElement.offsetLeft + 7;
 
           if (checkPosition(posX, tilePosX, posY, tilePosY)) {
             clearInterval(interval);
             setTimeout(
               function () {
-                if (creature.startsWith("player")) {
-                  if (tile.type.name == "Up") {
+                if (creature.startsWith("player") && isTile) {
+                  if (targetOrTile.type.name == "Up") {
                     recreateWorldData("down");
-                  } else if (tile.type.name == "Down") {
+                  } else if (targetOrTile.type.name == "Down") {
                     recreateWorldData("up");
-                  } else if (tile.type.name == "Left") {
+                  } else if (targetOrTile.type.name == "Left") {
                     recreateWorldData("right");
-                  } else if (tile.type.name == "Right") {
+                  } else if (targetOrTile.type.name == "Right") {
                     recreateWorldData("left");
                   }
                 }
 
                 if (doWork) {
-                  actOnTile(tile);
+                  actOnTile(targetOrTile);
                 }
-                setTileCreature(tile.id, "");
+
+                if (isTile) {
+                  setTileCreature(targetOrTile.id, "");
+                }
 
                 movingCreatures = movingCreatures.filter(
                   (item) => item !== creature
@@ -754,7 +805,7 @@
       }
 
       function checkPosition(x, x2, y, y2) {
-        return Math.abs(x - x2) + Math.abs(y - y2) < walkSpeed + 0.1;
+        return Math.abs(x - x2) + Math.abs(y - y2) < walkSpeed + 0.5;
       }
       function randomRange(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -895,7 +946,7 @@
         ("</td>");
       }
       function getTileBackgroundColor(tile) {
-        if (selObj == tile) {
+        if (selTile == tile) {
           return "#ffff99";
         } else {
           return tile.type.backgroundColor
@@ -904,7 +955,7 @@
         }
       }
       function getTileBorderColor(tile) {
-        if (selObj == tile) {
+        if (selTile == tile) {
           return "#ffff99";
         } else {
           return tile.type.backgroundColor
@@ -937,15 +988,6 @@
         }
         return "";
       }*/
-
-      function getCreatureBackgroundColor(creature) {
-        // TODO
-        if (selObj == creature) {
-          return "#ffff9980";
-        } else {
-          return "#0000ffff";
-        }
-      }
 
       function darkenColor(hexColor, percentage) {
         // Remove the "#" symbol if present

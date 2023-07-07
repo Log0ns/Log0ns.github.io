@@ -57,6 +57,43 @@
           },
         ],
       };
+
+      // stats -- type, range, damage, health, attackSpeed, heals
+      var itemsJson = {
+        knife: {
+          type: "weapon",
+          range: 1,
+          damage: 1,
+          health: 0,
+          attackSpeed: 1,
+          heals: false,
+        },
+        helmet: {
+          type: "armor",
+          range: 0,
+          damage: 0,
+          health: 1,
+          attackSpeed: 0,
+          heals: false,
+        },
+        bow: {
+          type: "weapon",
+          range: 3,
+          damage: 1,
+          health: 0,
+          attackSpeed: 1,
+          heals: false,
+        },
+        potion: {
+          type: "potion",
+          range: 0,
+          damage: 0,
+          health: 0,
+          attackSpeed: 0,
+          heals: true,
+        },
+      };
+
       var seed = 0; // TODO
       var worldSize = 15;
       var worldData = [];
@@ -71,16 +108,72 @@
       var firstArea = true;
       var defaultSmoothness = 15; // TODO noise scale
 
+      var menuId = 0;
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "ArrowDown") {
+          menuId++;
+
+          if (menuId >= items.length) {
+            menuId = items.length - 1;
+          }
+
+          updateStats();
+        }
+        if (event.key === "ArrowUp") {
+          menuId--;
+
+          if (menuId < 0) {
+            menuId = 0;
+          }
+
+          updateStats();
+        }
+        if (event.key === "Enter") {
+          equipItem(items[menuId][0]);
+
+          updateStats();
+        }
+      });
+
       var worldCoords = [0, 0]; // TODO biomes planned and stored
       var health = 10;
+      var equippedWeapon = "";
+      var equippedArmor = "";
+      var equippedPotion = "";
+      var equippedItem = "";
       var items = [];
+
+      function equipped(item) {
+        return (
+          equippedWeapon == item ||
+          equippedArmor == item ||
+          equippedPotion == item ||
+          equippedItem == item
+        );
+      }
       function updateStats() {
         document.getElementById("healthDiv").innerHTML = "Health: " + health;
 
         var itemsDiv = document.getElementById("itemsDiv");
         itemsDiv.innerHTML = "Items:";
         for (i = 0; i < items.length; i++) {
-          itemsDiv.innerHTML += "<br>" + items[i][0] + " x" + items[i][1];
+          iJson = itemsJson[items[i][0]];
+          itemsDiv.innerHTML +=
+            "<br>" +
+            (menuId == i ? " > " : "") +
+            (equipped(items[i][0]) ? "E " : "") +
+            items[i][0] +
+            " x" +
+            items[i][1] +
+            " (" +
+            iJson.type +
+            (iJson.range != 0 ? " range:" + iJson.range : "") +
+            (iJson.damage != 0 ? " damage:" + iJson.damage : "") +
+            (iJson.health != 0 ? " health:" + iJson.health : "") +
+            (iJson.attackSpeed != 0 ? " dex:" + iJson.attackSpeed : "") +
+            (iJson.heals != false ? " heals:" + iJson.heals : "") +
+            " )";
         }
       }
 
@@ -378,7 +471,7 @@
       function setSelCreature(creature) {
         if (selCreature != creature) {
           selCreature = creature;
-          selCreature.style.backgroundColor = "rgb(255, 0, 0)";
+          selCreature.style.backgroundColor = "rgba(255, 255, 102, 0.5)";
         } else {
           selCreature.style.backgroundColor = "";
           selCreature = null;
@@ -817,7 +910,12 @@
         }
 
         updateStats();
+
+        addItem("knife", 1);
+        addItem("helmet", 1);
       }
+
+      // stats -- type, range, damage, health, attackSpeed, heals
       function addItem(addItem, amount) {
         var added = false;
 
@@ -841,6 +939,23 @@
 
             if (items[i][1] <= 0) {
               items = items.filter((item) => item[0] !== removeItem);
+            }
+          }
+        }
+
+        updateStats();
+      }
+      function equipItem(equipItem) {
+        for (i = 0; i < items.length; i++) {
+          if (items[i][0] == equipItem) {
+            if (itemsJson[items[i][0]].type == "weapon") {
+              equippedWeapon = equippedWeapon == "" ? equipItem : "";
+            } else if (itemsJson[items[i][0]].type == "armor") {
+              equippedArmor = equippedArmor == "" ? equipItem : "";
+            } else if (itemsJson[items[i][0]].type == "potion") {
+              equippedPotion = equippedPotion == "" ? equipItem : "";
+            } else if (itemsJson[items[i][0]].type == "item") {
+              equippedItem = equippedItem == "" ? equipItem : "";
             }
           }
         }
@@ -1053,9 +1168,28 @@
   <body style="overflow: hidden">
     <table style="padding: 0px" id="world"></table>
     <p id="creatures"></p>
-    <div id="healthDiv"></div>
-    <br />
-    <div id="itemsDiv"></div>
+
+    <div>
+      <button id="attackButton" onclick="attackCooldown()">
+        <span class="button-text">Attack</span>
+        <div id="aBLoad" class="loading-bar"></div>
+      </button>
+      <button id="potionButton" onclick="potionCooldown()">
+        <span class="button-text">Potion</span>
+        <div id="pBLoad" class="loading-bar"></div>
+      </button>
+      <button id="spellButton" onclick="spellCooldown()">
+        <span class="button-text">Spell</span>
+        <div id="sBLoad" class="loading-bar"></div>
+      </button>
+      <button id="itemButton" onclick="itemCooldown()">
+        <span class="button-text">Item</span>
+        <div id="iBLoad" class="loading-bar"></div>
+      </button>
+    </div>
+
+    <div id="healthDiv" class="stats-text"></div>
+    <div id="itemsDiv" class="stats-text"></div>
     <!-- <div>
       <br />
       <button onclick="save()">Save</button>
@@ -1067,6 +1201,131 @@
     </div> -->
   </body>
 </html>
+
+<style>
+  button {
+    position: relative;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #eaeaea;
+    border: none;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: default;
+    pointer-events: all !important;
+  }
+
+  .button-text {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    position: relative;
+    z-index: 2;
+  }
+
+  .loading-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #808080;
+    transition: width 1s linear;
+    z-index: 1;
+  }
+
+  .stats-text {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+</style>
+
+<script>
+  // Action bars -- attack, potion, spell, item
+  const attackButton = document.getElementById("attackButton");
+  const aBLoad = document.getElementById("aBLoad");
+  let attackCooldownTime = 5;
+  const potionButton = document.getElementById("potionButton");
+  const pBLoad = document.getElementById("pBLoad");
+  let potionCooldownTime = 5;
+  const spellButton = document.getElementById("spellButton");
+  const sBLoad = document.getElementById("sBLoad");
+  let spellCooldownTime = 5;
+  const itemButton = document.getElementById("itemButton");
+  const iBLoad = document.getElementById("iBLoad");
+  let itemCooldownTime = 5;
+
+  let type = "attack";
+  let intervalId;
+
+  function attackCooldown() {
+    type = "attack";
+    enableBars(false);
+    intervalId = setInterval(updateLoadingBar, 1000);
+  }
+  function potionCooldown() {
+    type = "potion";
+    enableBars(false);
+    intervalId = setInterval(updateLoadingBar, 1000);
+  }
+  function spellCooldown() {
+    type = "spell";
+    enableBars(false);
+    intervalId = setInterval(updateLoadingBar, 1000);
+  }
+  function itemCooldown() {
+    type = "item";
+    enableBars(false);
+    intervalId = setInterval(updateLoadingBar, 1000);
+  }
+
+  function enableBars(enable) {
+    attackButton.disabled = !enable;
+    potionButton.disabled = !enable;
+    spellButton.disabled = !enable;
+    itemButton.disabled = !enable;
+
+    attackCooldownTime = 5;
+    potionCooldownTime = 5;
+    spellCooldownTime = 5;
+    itemCooldownTime = 5;
+    aBLoad.style.width = "100%";
+    pBLoad.style.width = "100%";
+    sBLoad.style.width = "100%";
+    iBLoad.style.width = "100%";
+  }
+
+  function updateLoadingBar() {
+    if (type == "attack") {
+      attackCooldownTime--;
+      aBLoad.style.width = (attackCooldownTime / 5) * 100 + "%";
+      if (attackCooldownTime <= 0) {
+        clearInterval(intervalId);
+        enableBars(true);
+      }
+    } else if (type == "potion") {
+      potionCooldownTime--;
+      pBLoad.style.width = (potionCooldownTime / 5) * 100 + "%";
+      if (potionCooldownTime <= 0) {
+        clearInterval(intervalId);
+        enableBars(true);
+      }
+    } else if (type == "spell") {
+      spellCooldownTime--;
+      sBLoad.style.width = (spellCooldownTime / 5) * 100 + "%";
+      if (spellCooldownTime <= 0) {
+        clearInterval(intervalId);
+        enableBars(true);
+      }
+    } else if (type == "item") {
+      itemCooldownTime--;
+      iBLoad.style.width = (itemCooldownTime / 5) * 100 + "%";
+      if (itemCooldownTime <= 0) {
+        clearInterval(intervalId);
+        enableBars(true);
+      }
+    }
+  }
+</script>
 
 <script>
   /*

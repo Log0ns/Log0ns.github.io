@@ -92,6 +92,14 @@
           attackSpeed: 0,
           heals: true,
         },
+        key: {
+          type: "item",
+          range: 0,
+          damage: 0,
+          health: 0,
+          attackSpeed: 0,
+          heals: false,
+        },
       };
 
       var seed = 0; // TODO
@@ -101,6 +109,8 @@
       var creaturesParent;
       var numCreatures = 0;
       var numEffects = 0;
+      var numWarnings = 0;
+      var blocking = false;
       var walkSpeed = 0.9;
       var workSpeed = 1000;
       var selTile;
@@ -156,24 +166,29 @@
         document.getElementById("healthDiv").innerHTML = "Health: " + health;
 
         var itemsDiv = document.getElementById("itemsDiv");
-        itemsDiv.innerHTML = "Items:";
+        itemsDiv.innerHTML = equippedItem != "" ? "Item: " + equippedItem : "";
+        itemsDiv.innerHTML +=
+          equippedPotion != "" ? "<br>" + "Potion: " + equippedPotion : "";
+        itemsDiv.innerHTML += "<br>";
         for (i = 0; i < items.length; i++) {
           iJson = itemsJson[items[i][0]];
           itemsDiv.innerHTML +=
             "<br>" +
             (menuId == i ? " > " : "") +
             (equipped(items[i][0]) ? "E " : "") +
+            " - " +
             items[i][0] +
             " x" +
             items[i][1] +
-            " (" +
-            iJson.type +
-            (iJson.range != 0 ? " range:" + iJson.range : "") +
-            (iJson.damage != 0 ? " damage:" + iJson.damage : "") +
-            (iJson.health != 0 ? " health:" + iJson.health : "") +
-            (iJson.attackSpeed != 0 ? " dex:" + iJson.attackSpeed : "") +
-            (iJson.heals != false ? " heals:" + iJson.heals : "") +
-            " )";
+            (menuId == i
+              ? "<br>" +
+                iJson.type +
+                (iJson.range != 0 ? " range:" + iJson.range : "") +
+                (iJson.damage != 0 ? " damage:" + iJson.damage : "") +
+                (iJson.health != 0 ? " health:" + iJson.health : "") +
+                (iJson.attackSpeed != 0 ? " dex:" + iJson.attackSpeed : "") +
+                (iJson.heals != false ? " heals:" + iJson.heals : "")
+              : "");
         }
       }
 
@@ -469,11 +484,14 @@
         drawWorld();
       }
       function setSelCreature(creature) {
+        if (selCreature) {
+          selCreature.style.backgroundColor = "";
+        }
+
         if (selCreature != creature) {
           selCreature = creature;
           selCreature.style.backgroundColor = "rgba(255, 255, 102, 0.5)";
         } else {
-          selCreature.style.backgroundColor = "";
           selCreature = null;
         }
       }
@@ -535,6 +553,7 @@
         } else {
           div.innerHTML =
             "<p " +
+            'data-health="3" ' +
             "onclick=clickCreature('" +
             creatureName +
             "','" +
@@ -614,11 +633,14 @@
           }
         } else {
           if (Math.random() < 0.4) {
-            createEffect(
-              "x",
-              creatureElement,
-              document.getElementById("player1")
-            );
+            createWarning(creatureElement, 2000);
+            setTimeout(() => {
+              createEffect(
+                "x",
+                creatureElement,
+                document.getElementById("player1")
+              );
+            }, 2000);
           }
 
           tile = findRandomTile();
@@ -727,8 +749,63 @@
         }
       }
 
+      function createWarning(creatureElement, removeTime) {
+        numWarnings++; // TODO clean up
+
+        let div = document.createElement("div");
+        div.innerHTML =
+          '<p id="warning" class="effect" title="warning">' + "!" + "</p>";
+
+        div.firstChild.id = "warning" + numWarnings.toString();
+        div.firstChild.title = "warning" + numWarnings.toString();
+        creaturesParent.appendChild(div);
+
+        moveWarning("warning" + numWarnings.toString(), creatureElement);
+
+        setTimeout(() => {
+          removeWarning(div);
+        }, removeTime);
+      }
+      function moveWarning(warning, sourceElement) {
+        var warningElement = document.getElementById(warning);
+
+        if (!warningElement) {
+          return;
+        }
+
+        if (sourceElement != null) {
+          warningElement.style.top = sourceElement.style.top;
+          warningElement.style.left = sourceElement.style.left;
+        }
+
+        var posY = warningElement.offsetTop - 20;
+        var posX = warningElement.offsetLeft;
+        var interval = setInterval(frame, 10);
+        function frame() {
+          var targetPosY = sourceElement.offsetTop - 30;
+          var targetPosX = sourceElement.offsetLeft + 5;
+
+          if (!checkPosition(posX, targetPosX, posY, targetPosY)) {
+            if (posY < targetPosY) {
+              warningElement.style.top = posY += walkSpeed * 1.5;
+            } else if (posY > targetPosY) {
+              warningElement.style.top = posY -= walkSpeed * 1.5;
+            }
+
+            if (posX < targetPosX) {
+              warningElement.style.left = posX += walkSpeed * 1.5;
+            } else if (posX > targetPosX) {
+              warningElement.style.left = posX -= walkSpeed * 1.5;
+            }
+          }
+        }
+      }
+      function removeWarning(warning) {
+        warning.remove();
+      }
+
       function createEffect(char, source, target) {
-        numEffects++;
+        numEffects++; // TODO clean up
 
         let div = document.createElement("div");
         div.innerHTML =
@@ -913,6 +990,8 @@
 
         addItem("knife", 1);
         addItem("helmet", 1);
+        addItem("potion", 1);
+        addItem("key", 1);
       }
 
       // stats -- type, range, damage, health, attackSpeed, heals
@@ -1165,31 +1244,56 @@
     </style>
   </head>
 
-  <body style="overflow: hidden">
-    <table style="padding: 0px" id="world"></table>
+  <body class="container">
+    <table class="table-container" id="world"></table>
     <p id="creatures"></p>
 
     <div>
-      <button id="attackButton" onclick="attackCooldown()">
-        <span class="button-text">Attack</span>
-        <div id="aBLoad" class="loading-bar"></div>
-      </button>
-      <button id="potionButton" onclick="potionCooldown()">
-        <span class="button-text">Potion</span>
-        <div id="pBLoad" class="loading-bar"></div>
-      </button>
-      <button id="spellButton" onclick="spellCooldown()">
-        <span class="button-text">Spell</span>
-        <div id="sBLoad" class="loading-bar"></div>
-      </button>
-      <button id="itemButton" onclick="itemCooldown()">
-        <span class="button-text">Item</span>
-        <div id="iBLoad" class="loading-bar"></div>
-      </button>
+      <div class="panel">
+        <div class="panel-content">
+          <div id="healthDiv" class="stats-text"></div>
+          <div id="itemsDiv" class="stats-text"></div>
+        </div>
+      </div>
+
+      <br />
+
+      <div class="panel">
+        <div class="panel-container">
+          <div style="grid-area: top">
+            <button id="attackButton" onclick="attackCooldown(1000)">
+              <span class="button-text">Attack</span>
+              <div id="aBLoad" class="loading-bar"></div>
+            </button>
+          </div>
+          <div style="grid-area: left">
+            <button id="itemButton" onclick="itemCooldown(500)">
+              <span class="button-text">Item</span>
+              <div id="iBLoad" class="loading-bar"></div>
+            </button>
+          </div>
+          <div style="grid-area: center">
+            <button id="blockButton" onclick="blockCooldown(200)">
+              <span id="blockText" class="button-text">Attacking</span>
+              <div id="bBLoad" class="loading-bar"></div>
+            </button>
+          </div>
+          <div style="grid-area: right">
+            <button id="potionButton" onclick="potionCooldown(2000)">
+              <span class="button-text">Potion</span>
+              <div id="pBLoad" class="loading-bar"></div>
+            </button>
+          </div>
+          <div style="grid-area: bottom">
+            <button id="spellButton" onclick="spellCooldown(2000)">
+              <span class="button-text">Spell</span>
+              <div id="sBLoad" class="loading-bar"></div>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div id="healthDiv" class="stats-text"></div>
-    <div id="itemsDiv" class="stats-text"></div>
     <!-- <div>
       <br />
       <button onclick="save()">Save</button>
@@ -1203,6 +1307,44 @@
 </html>
 
 <style>
+  .container {
+    display: inline-flex;
+    overflow: hidden;
+  }
+
+  .table-container {
+    padding: 0px;
+  }
+
+  .panel {
+    width: 300px;
+    height: 200px;
+    border: 1px solid #ccc;
+    overflow: hidden;
+    margin-left: 10px;
+    justify-items: center;
+    align-items: center;
+    padding: 5%;
+  }
+
+  .panel-container {
+    display: grid;
+    grid-template-areas:
+      "top top top"
+      "left center right"
+      "bottom bottom bottom";
+    gap: 20px;
+    height: 100%;
+    justify-items: center;
+    align-items: center;
+  }
+
+  .panel-content {
+    padding: 10px;
+    overflow-y: auto;
+    height: calc(100% - 20px); /* Subtract padding */
+  }
+
   button {
     position: relative;
     padding: 10px 20px;
@@ -1230,7 +1372,7 @@
     height: 100%;
     width: 100%;
     background-color: #808080;
-    transition: width 1s linear;
+    transition: width 0.5s linear;
     z-index: 1;
   }
 
@@ -1240,6 +1382,8 @@
 </style>
 
 <script>
+  const blockText = document.getElementById("blockText");
+
   // Action bars -- attack, potion, spell, item
   const attackButton = document.getElementById("attackButton");
   const aBLoad = document.getElementById("aBLoad");
@@ -1253,77 +1397,126 @@
   const itemButton = document.getElementById("itemButton");
   const iBLoad = document.getElementById("iBLoad");
   let itemCooldownTime = 5;
+  const blockButton = document.getElementById("blockButton");
+  const bBLoad = document.getElementById("bBLoad");
+  let blockCooldownTime = 5;
 
   let type = "attack";
   let intervalId;
 
-  function attackCooldown() {
+  function attackCooldown(time) {
     type = "attack";
-    enableBars(false);
-    intervalId = setInterval(updateLoadingBar, 1000);
+    enableBars(false, time);
+    aBLoad.style.width = "0%";
+    intervalId = setInterval(updateLoadingBar, time);
+
+    if (selCreature) {
+      selCreature.dataset.health--;
+    }
   }
-  function potionCooldown() {
+  function potionCooldown(time) {
     type = "potion";
-    enableBars(false);
-    intervalId = setInterval(updateLoadingBar, 1000);
+    enableBars(false, time);
+    pBLoad.style.width = "0%";
+    intervalId = setInterval(updateLoadingBar, time);
   }
-  function spellCooldown() {
+  function spellCooldown(time) {
     type = "spell";
-    enableBars(false);
-    intervalId = setInterval(updateLoadingBar, 1000);
+    enableBars(false, time);
+    sBLoad.style.width = "0%";
+    intervalId = setInterval(updateLoadingBar, time);
   }
-  function itemCooldown() {
+  function itemCooldown(time) {
     type = "item";
-    enableBars(false);
-    intervalId = setInterval(updateLoadingBar, 1000);
+    enableBars(false, time);
+    iBLoad.style.width = "0%";
+    intervalId = setInterval(updateLoadingBar, time);
+  }
+  function blockCooldown(time) {
+    type = "block";
+    /* enableBars(false, time);
+    bBLoad.style.width = "0%";
+    intervalId = setInterval(updateLoadingBar, time); */
+
+    doBlock();
   }
 
-  function enableBars(enable) {
+  function enableBars(enable, time) {
+    if (time < 0) {
+      attackButton.disabled = !enable;
+      potionButton.disabled = !enable;
+      spellButton.disabled = !enable;
+      itemButton.disabled = !enable;
+      blockButton.disabled = false;
+      return;
+    }
+
     attackButton.disabled = !enable;
     potionButton.disabled = !enable;
     spellButton.disabled = !enable;
     itemButton.disabled = !enable;
+    blockButton.disabled = !enable;
 
-    attackCooldownTime = 5;
-    potionCooldownTime = 5;
-    spellCooldownTime = 5;
-    itemCooldownTime = 5;
+    attackCooldownTime = time / 1000;
+    potionCooldownTime = time / 1000;
+    spellCooldownTime = time / 1000;
+    itemCooldownTime = time / 1000;
+    blockCooldownTime = time / 1000;
     aBLoad.style.width = "100%";
     pBLoad.style.width = "100%";
     sBLoad.style.width = "100%";
     iBLoad.style.width = "100%";
+    bBLoad.style.width = "100%";
   }
 
-  function updateLoadingBar() {
+  function updateLoadingBar(time) {
     if (type == "attack") {
       attackCooldownTime--;
-      aBLoad.style.width = (attackCooldownTime / 5) * 100 + "%";
+      aBLoad.style.width =
+        /* (attackCooldownTime / (time / 1000)) * 100 + */ "0%";
       if (attackCooldownTime <= 0) {
         clearInterval(intervalId);
         enableBars(true);
       }
     } else if (type == "potion") {
       potionCooldownTime--;
-      pBLoad.style.width = (potionCooldownTime / 5) * 100 + "%";
+      pBLoad.style.width =
+        /* (potionCooldownTime / (time / 1000)) * 100 + */ "0%";
       if (potionCooldownTime <= 0) {
         clearInterval(intervalId);
         enableBars(true);
       }
     } else if (type == "spell") {
       spellCooldownTime--;
-      sBLoad.style.width = (spellCooldownTime / 5) * 100 + "%";
+      sBLoad.style.width =
+        /* (spellCooldownTime / (time / 1000)) * 100 + */ "0%";
       if (spellCooldownTime <= 0) {
         clearInterval(intervalId);
         enableBars(true);
       }
     } else if (type == "item") {
       itemCooldownTime--;
-      iBLoad.style.width = (itemCooldownTime / 5) * 100 + "%";
+      iBLoad.style.width =
+        /* (itemCooldownTime / (time / 1000)) * 100 + */ "0%";
       if (itemCooldownTime <= 0) {
         clearInterval(intervalId);
         enableBars(true);
       }
+    } else if (type == "block") {
+      blockCooldownTime--;
+      bBLoad.style.width =
+        /* (blockCooldownTime / (time / 1000)) * 100 + */ "0%";
+      if (blockCooldownTime <= 0) {
+        clearInterval(intervalId);
+        enableBars(true);
+      }
     }
+  }
+
+  function doBlock() {
+    blocking = !blocking;
+    enableBars(!blocking, -1);
+    blockText.innerHTML = blocking ? "Blocking" : "Attacking";
   }
 </script>
 

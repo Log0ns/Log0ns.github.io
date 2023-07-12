@@ -107,9 +107,13 @@
       var worldData = [];
       var worldTable;
       var creaturesParent;
+      var createTimestamp;
+
+      // Reset after 100
       var numCreatures = 0;
       var numEffects = 0;
       var numWarnings = 0;
+
       var blocking = false;
       var walkSpeed = 0.9;
       var workSpeed = 1000;
@@ -258,7 +262,6 @@
         creaturesParent = document.getElementById("creatures");
         createWorldData();
         drawWorld();
-        //setInterval(timeTick, 1000);
         createCreature("player", 0, 0);
         createCreatures();
 
@@ -321,6 +324,8 @@
         } */
 
         updateStats();
+
+        createTimestamp = Date.now();
       }
       function recreateWorldData(playerDir) {
         worldSize = testEnvJson.environment.worldSize;
@@ -362,6 +367,13 @@
         createCreatures();
 
         updateStats();
+      }
+
+      function secondsSinceCreate() {
+        const currentTime = Date.now();
+        const timeDifference = currentTime - createTimestamp;
+        const secondsSinceCreate = Math.floor(timeDifference / 1000);
+        return secondsSinceCreate;
       }
 
       function createCreatures() {
@@ -540,6 +552,10 @@
 
       function createCreature(creatureName, posX, posY) {
         numCreatures++;
+        if (numCreatures > 100) {
+          // Set to 2 because player is 1
+          numCreatures = 2;
+        }
 
         // TODO multiplication by 25 should be based off tile width and spacing
         let div = document.createElement("div");
@@ -582,6 +598,8 @@
         } */
 
         chooseNextAIAction(creatureName + numCreatures.toString());
+
+        updateCreatureJSON(div.firstChild);
       }
       function clearCreatures() {
         while (creaturesParent.firstChild) {
@@ -633,7 +651,7 @@
           }
         } else {
           if (Math.random() < 0.4) {
-            createWarning(creatureElement, 2000);
+            createWarning("!", creatureElement, 2000);
             setTimeout(() => {
               createEffect(
                 "x",
@@ -749,24 +767,29 @@
         }
       }
 
-      function createWarning(creatureElement, removeTime) {
-        numWarnings++; // TODO clean up
+      function createWarning(symbol, creatureElement, removeTime) {
+        numWarnings++;
+        if (numWarnings > 100) {
+          numWarnings = 1;
+        }
 
         let div = document.createElement("div");
         div.innerHTML =
-          '<p id="warning" class="effect" title="warning">' + "!" + "</p>";
+          '<p id="warning" class="effect" title="warning">' +
+          symbol.toString() +
+          "</p>";
 
         div.firstChild.id = "warning" + numWarnings.toString();
         div.firstChild.title = "warning" + numWarnings.toString();
         creaturesParent.appendChild(div);
 
-        moveWarning("warning" + numWarnings.toString(), creatureElement);
-
-        setTimeout(() => {
-          removeWarning(div);
-        }, removeTime);
+        moveWarning(
+          "warning" + numWarnings.toString(),
+          creatureElement,
+          removeTime
+        );
       }
-      function moveWarning(warning, sourceElement) {
+      function moveWarning(warning, sourceElement, removeTime) {
         var warningElement = document.getElementById(warning);
 
         if (!warningElement) {
@@ -774,13 +797,18 @@
         }
 
         if (sourceElement != null) {
-          warningElement.style.top = sourceElement.style.top;
-          warningElement.style.left = sourceElement.style.left;
+          warningElement.style.top = sourceElement.offsetTop - 30;
+          warningElement.style.left = sourceElement.offsetLeft + 5;
         }
 
         var posY = warningElement.offsetTop - 20;
         var posX = warningElement.offsetLeft;
         var interval = setInterval(frame, 10);
+
+        setTimeout(() => {
+          removeWarning(warningElement, interval);
+        }, removeTime);
+
         function frame() {
           var targetPosY = sourceElement.offsetTop - 30;
           var targetPosX = sourceElement.offsetLeft + 5;
@@ -800,12 +828,16 @@
           }
         }
       }
-      function removeWarning(warning) {
+      function removeWarning(warning, interval) {
+        clearInterval(interval);
         warning.remove();
       }
 
       function createEffect(char, source, target) {
-        numEffects++; // TODO clean up
+        numEffects++;
+        if (numEffects > 100) {
+          numEffects = 1;
+        }
 
         let div = document.createElement("div");
         div.innerHTML =
@@ -844,7 +876,7 @@
             clearInterval(interval);
             setTimeout(function () {
               effectElement.parentNode.remove();
-              changeStat("health", -1);
+              playerDamage(1);
             }, 500);
           } else {
             if (posY < tilePosY) {
@@ -992,6 +1024,59 @@
         addItem("helmet", 1);
         addItem("potion", 1);
         addItem("key", 1);
+      }
+      function playerDamage(amount) {
+        if (secondsSinceCreate() < 5) {
+          return;
+        }
+
+        if (!blocking) {
+          changeStat("health", -amount);
+        }
+      }
+
+      function updateCreatureJSON(creature) {
+        if (creature.id.startsWith("player")) {
+          return;
+        }
+
+        var creatureJSON = JSON.parse(
+          document.getElementById("creatureJSON").innerHTML.toString() != ""
+            ? document.getElementById("creatureJSON").innerHTML.toString()
+            : "{}"
+        );
+
+        if (!creature.dataset.health) {
+          return;
+        }
+
+        var newItem = { name: creature.id, health: creature.dataset.health };
+        creatureJSON[newItem.name] = newItem;
+
+        document.getElementById("creatureJSON").innerHTML =
+          JSON.stringify(creatureJSON);
+
+        updateCreatureText();
+      }
+      function updateCreatureText() {
+        var creatureJSON = JSON.parse(
+          document.getElementById("creatureJSON").innerHTML.toString() != ""
+            ? document.getElementById("creatureJSON").innerHTML.toString()
+            : "{}"
+        );
+
+        var retText = "";
+        Object.keys(creatureJSON).forEach((key) => {
+          const creature = creatureJSON[key];
+          retText +=
+            creature.name +
+            "<br>" +
+            " - health:" +
+            creature.health +
+            "<br><br>";
+        });
+
+        document.getElementById("creatureText").innerHTML = retText;
       }
 
       // stats -- type, range, damage, health, attackSpeed, heals
@@ -1274,7 +1359,7 @@
           </div>
           <div style="grid-area: center">
             <button id="blockButton" onclick="blockCooldown(200)">
-              <span id="blockText" class="button-text">Attacking</span>
+              <span id="blockText" class="button-text">Block</span>
               <div id="bBLoad" class="loading-bar"></div>
             </button>
           </div>
@@ -1292,6 +1377,11 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="panel">
+      <div id="creatureText" class="panel-content"></div>
+      <div id="creatureJSON" style="display: none"></div>
     </div>
 
     <!-- <div>
@@ -1313,18 +1403,18 @@
   }
 
   .table-container {
+    width: 480px;
     padding: 0px;
   }
 
   .panel {
-    width: 300px;
+    /* width: 300px; */
     height: 200px;
     border: 1px solid #ccc;
     overflow: hidden;
     margin-left: 10px;
     justify-items: center;
     align-items: center;
-    padding: 5%;
   }
 
   .panel-container {
@@ -1340,6 +1430,7 @@
   }
 
   .panel-content {
+    max-width: 250px;
     padding: 10px;
     overflow-y: auto;
     height: calc(100% - 20px); /* Subtract padding */
@@ -1384,6 +1475,9 @@
 <script>
   const blockText = document.getElementById("blockText");
 
+  let blockWarningIntervalId;
+  blockWarningIntervalId = setInterval(createBlockWarning, 500);
+
   // Action bars -- attack, potion, spell, item
   const attackButton = document.getElementById("attackButton");
   const aBLoad = document.getElementById("aBLoad");
@@ -1412,6 +1506,7 @@
 
     if (selCreature) {
       selCreature.dataset.health--;
+      updateCreatureJSON(selCreature);
     }
   }
   function potionCooldown(time) {
@@ -1516,7 +1611,13 @@
   function doBlock() {
     blocking = !blocking;
     enableBars(!blocking, -1);
-    blockText.innerHTML = blocking ? "Blocking" : "Attacking";
+    //blockText.innerHTML = blocking ? "Blocking" : "Block";
+  }
+  function createBlockWarning() {
+    if (blocking) {
+      var playerElement = document.getElementById("player1");
+      createWarning("#", playerElement, 500);
+    }
   }
 </script>
 

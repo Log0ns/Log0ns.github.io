@@ -236,27 +236,8 @@
           "<br>" +
           "Potion: " +
           (equippedPotion != "" ? equippedPotion : "water");
-        itemsDiv.innerHTML += "<br>";
-        for (i = 0; i < items.length; i++) {
-          iJson = itemsJson[items[i][0]];
-          itemsDiv.innerHTML +=
-            "<br>" +
-            (menuId == i ? " > " : "") +
-            (isEquipped(items[i][0]) ? "E " : "") +
-            " - " +
-            items[i][0] +
-            " x" +
-            items[i][1] +
-            (menuId == i
-              ? "<br>" +
-                iJson.type +
-                (iJson.range != 0 ? " range:" + iJson.range : "") +
-                (iJson.damage != 0 ? " damage:" + iJson.damage : "") +
-                (iJson.health != 0 ? " health:" + iJson.health : "") +
-                (iJson.attackSpeed != 0 ? " dex:" + iJson.attackSpeed : "") +
-                (iJson.heals != false ? " heals:" + iJson.heals : "")
-              : "");
-        }
+
+        updateInfoText();
       }
 
       var tileTypes = [
@@ -1160,9 +1141,9 @@
         var newItem = { name: creature.id, health: creature.dataset.health };
         creatureJSON[newItem.name] = newItem;
 
-        updateCreatureText();
+        updateInfoText();
       }
-      function updateCreatureText() {
+      function updateInfoText() {
         var retText = "";
         Object.keys(creatureJSON).forEach((key) => {
           const creature = creatureJSON[key];
@@ -1173,8 +1154,32 @@
             creature.health +
             "<br><br>";
         });
-
         document.getElementById("creatureText").innerHTML = retText;
+
+        retText = "";
+        if (items.length > 0) {
+          for (i = 0; i < items.length; i++) {
+            iJson = itemsJson[items[i][0]];
+            retText +=
+              (menuId == i ? " > " : "") +
+              (isEquipped(items[i][0]) ? "E " : "") +
+              " - " +
+              items[i][0] +
+              " x" +
+              items[i][1] +
+              (menuId == i
+                ? "<br>" +
+                  iJson.type +
+                  (iJson.range != 0 ? " range:" + iJson.range : "") +
+                  (iJson.damage != 0 ? " damage:" + iJson.damage : "") +
+                  (iJson.health != 0 ? " health:" + iJson.health : "") +
+                  (iJson.attackSpeed != 0 ? " dex:" + iJson.attackSpeed : "") +
+                  (iJson.heals != false ? " heals:" + iJson.heals : "")
+                : "") +
+              "<br>";
+          }
+        }
+        document.getElementById("invText").innerHTML = retText;
       }
 
       // stats -- type, range, damage, health, attackSpeed, heals
@@ -1223,6 +1228,25 @@
         }
 
         updateStats();
+      }
+      function useItem(useItem) {
+        if (!useItem) {
+          return;
+        }
+
+        for (i = 0; i < items.length; i++) {
+          if (items[i][0] == useItem) {
+            if (itemsJson[items[i][0]].heals) {
+              health = 10 + getStat("health");
+            }
+
+            if (itemsJson[items[i][0]].type == "potion") {
+              removeItem(useItem, 1);
+            } else if (itemsJson[items[i][0]].type == "item") {
+              // TODO
+            }
+          }
+        }
       }
 
       /*function save() {
@@ -1444,41 +1468,51 @@
       <div class="panel">
         <div class="panel-container">
           <div style="grid-area: top">
-            <button id="attackButton" onclick="attackCooldown(1000)">
-              <span id="topText" class="button-text">Attack</span>
-              <div id="aBLoad" class="loading-bar"></div>
+            <button id="topButton" onclick="topCooldown(2000)">
+              <span id="topText" class="button-text"></span>
+              <div id="topBLoad" class="loading-bar"></div>
             </button>
           </div>
           <div style="grid-area: left">
-            <button id="itemButton" onclick="itemCooldown(500)">
-              <span id="leftText" class="button-text">Item</span>
-              <div id="iBLoad" class="loading-bar"></div>
+            <button id="leftButton" onclick="leftCooldown(500)">
+              <span id="leftText" class="button-text"></span>
+              <div id="leftBLoad" class="loading-bar"></div>
             </button>
           </div>
           <div style="grid-area: center">
-            <button id="blockButton" onclick="blockCooldown(200)">
-              <span id="blockText" class="button-text">Block</span>
-              <div id="bBLoad" class="loading-bar"></div>
+            <button id="centerButton" onclick="centerCooldown(200)">
+              <span id="blockText" class="button-text"></span>
+              <div id="centerBLoad" class="loading-bar"></div>
             </button>
           </div>
           <div style="grid-area: right">
-            <button id="potionButton" onclick="potionCooldown(2000)">
-              <span id="rightText" class="button-text">Potion</span>
-              <div id="pBLoad" class="loading-bar"></div>
+            <button id="rightButton" onclick="rightCooldown(1000)">
+              <span id="rightText" class="button-text"></span>
+              <div id="rightBLoad" class="loading-bar"></div>
             </button>
           </div>
           <div style="grid-area: bottom">
-            <button id="spellButton" onclick="spellCooldown(2000)">
-              <span id="bottomText" class="button-text">Spell</span>
-              <div id="sBLoad" class="loading-bar"></div>
+            <button id="bottomButton" onclick="bottomCooldown(2000)">
+              <span id="bottomText" class="button-text"></span>
+              <div id="bottomBLoad" class="loading-bar"></div>
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="panel">
-      <div id="creatureText" class="panel-content"></div>
+    <div>
+      <div class="panel">
+        <div class="panel-content">
+          <div id="creatureText" class="stats-text"></div>
+        </div>
+      </div>
+      <br />
+      <div class="panel">
+        <div class="panel-content">
+          <div id="invText" class="stats-text"></div>
+        </div>
+      </div>
     </div>
 
     <!-- <div>
@@ -1576,30 +1610,53 @@
   repeatIntervalId = setInterval(repeatFunction, 500);
 
   // Action bars -- attack, potion, spell, item
-  const attackButton = document.getElementById("attackButton");
-  const aBLoad = document.getElementById("aBLoad");
-  let attackCooldownTime = 5;
-  const potionButton = document.getElementById("potionButton");
-  const pBLoad = document.getElementById("pBLoad");
-  let potionCooldownTime = 5;
-  const spellButton = document.getElementById("spellButton");
-  const sBLoad = document.getElementById("sBLoad");
-  let spellCooldownTime = 5;
-  const itemButton = document.getElementById("itemButton");
-  const iBLoad = document.getElementById("iBLoad");
-  let itemCooldownTime = 5;
-  const blockButton = document.getElementById("blockButton");
-  const bBLoad = document.getElementById("bBLoad");
-  let blockCooldownTime = 5;
+  const topButton = document.getElementById("topButton");
+  const topBLoad = document.getElementById("topBLoad");
+  let topCooldownTime = 5;
+  const rightButton = document.getElementById("rightButton");
+  const rightBLoad = document.getElementById("rightBLoad");
+  let rightCooldownTime = 5;
+  const bottomButton = document.getElementById("bottomButton");
+  const bottomBLoad = document.getElementById("bottomBLoad");
+  let bottomCooldownTime = 5;
+  const leftButton = document.getElementById("leftButton");
+  const leftBLoad = document.getElementById("leftBLoad");
+  let leftCooldownTime = 5;
+  const centerButton = document.getElementById("centerButton");
+  const centerBLoad = document.getElementById("centerBLoad");
+  let centerCooldownTime = 5;
 
-  let type = "attack";
+  let actType = "top";
   let intervalId;
 
-  function attackCooldown(time) {
-    if (selCreature != null) {
-      type = "attack";
+  // Top
+  function topCooldown(time) {
+    // if (selCreature != null) {
+    /* actType = "top";
       enableBars(false, time);
-      aBLoad.style.width = "0%";
+      topBLoad.style.width = "0%";
+      intervalId = setInterval(updateLoadingBar, time); */
+    // } else {
+    arrowUp();
+    // }
+  }
+  // Left
+  function leftCooldown(time) {
+    // if (selCreature != null) {
+    /* actType = "left";
+      enableBars(false, time);
+      leftBLoad.style.width = "0%";
+      intervalId = setInterval(updateLoadingBar, time); */
+    // } else {
+    useItem(items[menuId][0]);
+    // }
+  }
+  // Right
+  function rightCooldown(time) {
+    if (selCreature != null) {
+      actType = "right";
+      enableBars(false, time);
+      rightBLoad.style.width = "0%";
       intervalId = setInterval(updateLoadingBar, time);
 
       if (selCreature) {
@@ -1607,120 +1664,102 @@
         updateCreatureJSON(selCreature);
       }
     } else {
-      arrowUp();
-    }
-  }
-  function potionCooldown(time) {
-    if (selCreature != null) {
-      type = "potion";
-      enableBars(false, time);
-      pBLoad.style.width = "0%";
-      intervalId = setInterval(updateLoadingBar, time);
-    } else {
-      // TODO arrowRight
-    }
-  }
-  function spellCooldown(time) {
-    if (selCreature != null) {
-      type = "spell";
-      enableBars(false, time);
-      sBLoad.style.width = "0%";
-      intervalId = setInterval(updateLoadingBar, time);
-    } else {
-      arrowDown();
-    }
-  }
-  function itemCooldown(time) {
-    if (selCreature != null) {
-      type = "item";
-      enableBars(false, time);
-      iBLoad.style.width = "0%";
-      intervalId = setInterval(updateLoadingBar, time);
-    } else {
-      // TODO arrowLeft
-    }
-  }
-  function blockCooldown(time) {
-    if (selCreature != null) {
-      type = "block";
-      /* enableBars(false, time);
-    bBLoad.style.width = "0%";
-    intervalId = setInterval(updateLoadingBar, time); */
-
-      doBlock();
-    } else {
       enter();
     }
+  }
+  // Down
+  function bottomCooldown(time) {
+    // if (selCreature != null) {
+    /* actType = "bottom";
+      enableBars(false, time);
+      bottomBLoad.style.width = "0%";
+      intervalId = setInterval(updateLoadingBar, time); */
+    // } else {
+    arrowDown();
+    // }
+  }
+  // Center
+  function centerCooldown(time) {
+    // if (selCreature != null) {
+    actType = "center";
+    /* enableBars(false, time);
+    centerBLoad.style.width = "0%";
+    intervalId = setInterval(updateLoadingBar, time); */
+
+    doBlock();
+    // } else {
+    //   enter();
+    // }
   }
 
   function enableBars(enable, time) {
     if (time < 0) {
-      attackButton.disabled = !enable;
-      potionButton.disabled = !enable;
-      spellButton.disabled = !enable;
-      itemButton.disabled = !enable;
-      blockButton.disabled = false;
+      topButton.disabled = !enable;
+      rightButton.disabled = !enable;
+      bottomButton.disabled = !enable;
+      leftButton.disabled = !enable;
+      centerButton.disabled = false;
       return;
     }
 
     blocking = false;
 
-    attackButton.disabled = !enable;
-    potionButton.disabled = !enable;
-    spellButton.disabled = !enable;
-    itemButton.disabled = !enable;
-    blockButton.disabled = !enable;
+    topButton.disabled = !enable;
+    rightButton.disabled = !enable;
+    bottomButton.disabled = !enable;
+    leftButton.disabled = !enable;
+    centerButton.disabled = !enable;
 
-    attackCooldownTime = time / 1000;
-    potionCooldownTime = time / 1000;
-    spellCooldownTime = time / 1000;
-    itemCooldownTime = time / 1000;
-    blockCooldownTime = time / 1000;
-    aBLoad.style.width = "100%";
-    pBLoad.style.width = "100%";
-    sBLoad.style.width = "100%";
-    iBLoad.style.width = "100%";
-    bBLoad.style.width = "100%";
+    topCooldownTime = time / 1000;
+    rightCooldownTime = time / 1000;
+    bottomCooldownTime = time / 1000;
+    leftCooldownTime = time / 1000;
+    centerCooldownTime = time / 1000;
+    topBLoad.style.width = "100%";
+    rightBLoad.style.width = "100%";
+    bottomBLoad.style.width = "100%";
+    leftBLoad.style.width = "100%";
+    centerBLoad.style.width = "100%";
   }
 
   function updateLoadingBar(time) {
-    if (type == "attack") {
-      attackCooldownTime--;
-      aBLoad.style.width =
+    if (actType == "top") {
+      topCooldownTime--;
+      topBLoad.style.width =
         /* (attackCooldownTime / (time / 1000)) * 100 + */ "0%";
-      if (attackCooldownTime <= 0) {
+      if (topCooldownTime <= 0) {
         clearInterval(intervalId);
         enableBars(true);
       }
-    } else if (type == "potion") {
-      potionCooldownTime--;
-      pBLoad.style.width =
+    } else if (actType == "right") {
+      rightCooldownTime--;
+      rightBLoad.style.width =
         /* (potionCooldownTime / (time / 1000)) * 100 + */ "0%";
-      if (potionCooldownTime <= 0) {
+      if (rightCooldownTime <= 0) {
         clearInterval(intervalId);
         enableBars(true);
       }
-    } else if (type == "spell") {
-      spellCooldownTime--;
-      sBLoad.style.width =
+    } else if (actType == "bottom") {
+      bottomCooldownTime--;
+      bottomBLoad.style.width =
         /* (spellCooldownTime / (time / 1000)) * 100 + */ "0%";
-      if (spellCooldownTime <= 0) {
+      if (bottomCooldownTime <= 0) {
         clearInterval(intervalId);
         enableBars(true);
       }
-    } else if (type == "item") {
-      itemCooldownTime--;
-      iBLoad.style.width =
+    } else if (actType == "left") {
+      leftCooldownTime--;
+      leftBLoad.style.width =
         /* (itemCooldownTime / (time / 1000)) * 100 + */ "0%";
-      if (itemCooldownTime <= 0) {
+      if (leftCooldownTime <= 0) {
         clearInterval(intervalId);
         enableBars(true);
       }
-    } else if (type == "block") {
-      blockCooldownTime--;
-      bBLoad.style.width =
+    } else if (actType == "center") {
+      centerCooldownTime--;
+      centerBLoad.style.width =
         /* (blockCooldownTime / (time / 1000)) * 100 + */ "0%";
-      if (blockCooldownTime <= 0) {
+      if (centerCooldownTime <= 0) {
         clearInterval(intervalId);
         enableBars(true);
       }
@@ -1744,14 +1783,14 @@
 
   function setActionButtonsText() {
     document.getElementById("topText").innerHTML =
-      selCreature != null ? "Attack" : "^";
+      selCreature != null ? "^" : "^";
     document.getElementById("leftText").innerHTML =
-      selCreature != null ? "Item" : "<";
-    blockText.innerHTML = selCreature != null ? "Block" : "x";
+      selCreature != null ? "Use" : "Use";
+    blockText.innerHTML = selCreature != null ? "Block" : "Block";
     document.getElementById("rightText").innerHTML =
-      selCreature != null ? "Potion" : ">";
+      selCreature != null ? "Attack" : "Equip";
     document.getElementById("bottomText").innerHTML =
-      selCreature != null ? "Spell" : "v";
+      selCreature != null ? "v" : "v";
   }
 </script>
 

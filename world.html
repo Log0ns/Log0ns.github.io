@@ -5,6 +5,8 @@
     <script>
       var baseEnvJson = {};
 
+      var envJsons = [];
+
       var lavaCanyon = {
         environment: {
           name: "Lava Canyon",
@@ -13,32 +15,36 @@
           worldSize: 15,
         },
         floor_tile: {
-          name: "Rock", // TODO ground
+          name: "Rock", // ground
           symbol: "▲",
           backgroundColor: "#8B4513",
           color: "#FFFFFF",
+          canWalk: true,
         },
         prop_types: [
           {
-            name: "Lava", // TODO group
+            name: "Lava", // group
             symbol: "≋",
             backgroundColor: "#FF4C00",
             color: "#FFFF00",
             rarity: 0.5,
+            smoothness: 10,
           },
           {
-            name: "Tree", // TODO individual
+            name: "Tree", // individual
             symbol: "♠",
             backgroundColor: "#006400",
             color: "#FFFF00",
             rarity: 0.9,
+            smoothness: 10,
           },
           {
-            name: "Bones", // TODO rare
+            name: "Bones", // rare
             symbol: "☠",
             backgroundColor: "#D3D3D3",
             color: "#FF0000",
             rarity: 0.99,
+            smoothness: 10,
           },
         ],
         creature_types: [
@@ -60,66 +66,1073 @@
         ],
       };
 
-      var rollingPasture = {
+      var celestialRealm = {
         environment: {
-          name: "Rolling Pasture",
-          danger: 3,
+          name: "Celestial Realm",
+          danger: 9,
+          enemyCount: 6,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Starlight",
+          symbol: "✦",
+          backgroundColor: "#000000",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Clouds",
+            symbol: "☁",
+            backgroundColor: "#FFFFFF",
+            color: "#CCCCCC",
+            rarity: 0.2,
+            smoothness: 50,
+          },
+          {
+            name: "Crystal",
+            symbol: "❖",
+            backgroundColor: "#87CEEB",
+            color: "#FFFFFF",
+            rarity: 0.5,
+            smoothness: 30,
+          },
+          {
+            name: "Feathers",
+            symbol: "✿",
+            backgroundColor: "#FFC0CB",
+            color: "#FFFF00",
+            rarity: 0.9,
+            smoothness: 20,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Seraph",
+            symbol: "👼",
+            color: "#FFD700",
+          },
+          {
+            name: "Celestial Dragon",
+            symbol: "🐉",
+            color: "#00CED1",
+          },
+          {
+            name: "Astral Unicorn",
+            symbol: "🦄",
+            color: "#FF69B4",
+          },
+        ],
+      };
+
+      var enchantedForest = {
+        environment: {
+          name: "Enchanted Forest",
+          danger: 6,
+          enemyCount: 5,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Moss",
+          symbol: "▲",
+          backgroundColor: "#228B22",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Glowing Mushrooms",
+            symbol: "≋",
+            backgroundColor: "#8A2BE2",
+            color: "#FFFF00",
+            rarity: 0.6,
+            smoothness: 25,
+          },
+          {
+            name: "Ancient Trees",
+            symbol: "♠",
+            backgroundColor: "#006400",
+            color: "#FFD700",
+            rarity: 0.5,
+            smoothness: 30,
+          },
+          {
+            name: "Magic Crystals",
+            symbol: "☠",
+            backgroundColor: "#FF1493",
+            color: "#00FFFF",
+            rarity: 0.9,
+            smoothness: 15,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Fairy",
+            symbol: "🧚",
+            color: "#FF69B4",
+          },
+          {
+            name: "Elf",
+            symbol: "🧝",
+            color: "#008080",
+          },
+          {
+            name: "Goblin",
+            symbol: "👺",
+            color: "#FFA500",
+          },
+        ],
+      };
+
+      var lavaFortress = {
+        environment: {
+          name: "Lava Fortress",
+          danger: 9,
+          enemyCount: 6,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Lava Rock",
+          symbol: "▲",
+          backgroundColor: "#800000",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Lava Pool",
+            symbol: "≋",
+            backgroundColor: "#FF4500",
+            color: "#FFD700",
+            rarity: 0.2,
+            smoothness: 50,
+          },
+          {
+            name: "Volcanic Crater",
+            symbol: "♠",
+            backgroundColor: "#8B0000",
+            color: "#FF4500",
+            rarity: 0.4,
+            smoothness: 40,
+          },
+          {
+            name: "Bones",
+            symbol: "☠",
+            backgroundColor: "#D3D3D3",
+            color: "#FF0000",
+            rarity: 0.999,
+            smoothness: 5,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Fire Elemental",
+            symbol: "🜄",
+            color: "#FF4500",
+          },
+          {
+            name: "Magma Beast",
+            symbol: "🜁",
+            color: "#FF8C00",
+          },
+          {
+            name: "Lava Golem",
+            symbol: "🜃",
+            color: "#FF0000",
+          },
+        ],
+      };
+
+      var crystalCaverns = {
+        environment: {
+          name: "Crystal Caverns",
+          danger: 9,
+          enemyCount: 6,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Crystals",
+          symbol: "▲",
+          backgroundColor: "#00CED1",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Stalactites",
+            symbol: "≋",
+            backgroundColor: "#808080",
+            color: "#FFD700",
+            rarity: 0.2,
+            smoothness: 35,
+          },
+          {
+            name: "Glowing Mushrooms",
+            symbol: "♠",
+            backgroundColor: "#00FF00",
+            color: "#8A2BE2",
+            rarity: 0.9,
+            smoothness: 15,
+          },
+          {
+            name: "Crystal Skulls",
+            symbol: "☠",
+            backgroundColor: "#C0C0C0",
+            color: "#FF1493",
+            rarity: 0.999,
+            smoothness: 10,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Crystal Golem",
+            symbol: "💎",
+            color: "#00BFFF",
+          },
+          {
+            name: "Luminous Serpent",
+            symbol: "🐍",
+            color: "#00FF00",
+          },
+          {
+            name: "Spectral Spider",
+            symbol: "🕷",
+            color: "#9400D3",
+          },
+        ],
+      };
+
+      var mistyMoorlands = {
+        environment: {
+          name: "Misty Moorlands",
+          danger: 6,
+          enemyCount: 5,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Moor",
+          symbol: "▲",
+          backgroundColor: "#B0C4DE",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Mist",
+            symbol: "≋",
+            backgroundColor: "#D3D3D3",
+            color: "#7B68EE",
+            rarity: 0.5,
+            smoothness: 25,
+          },
+          {
+            name: "Dead Tree",
+            symbol: "♠",
+            backgroundColor: "#A0522D",
+            color: "#696969",
+            rarity: 0.9,
+            smoothness: 15,
+          },
+          {
+            name: "Ancient Ruins",
+            symbol: "☠",
+            backgroundColor: "#8B0000",
+            color: "#FFD700",
+            rarity: 0.99,
+            smoothness: 8,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Ghost",
+            symbol: "👻",
+            color: "#F8F8FF",
+          },
+          {
+            name: "Werewolf",
+            symbol: "🐺",
+            color: "#483D8B",
+          },
+          {
+            name: "Wisp",
+            symbol: "🧚",
+            color: "#FFD700",
+          },
+        ],
+      };
+
+      var whisperingWoods = {
+        environment: {
+          name: "Whispering Woods",
+          danger: 6,
+          enemyCount: 5,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Grassy Ground",
+          symbol: "▲",
+          backgroundColor: "#7CCD7C",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Tall Grass",
+            symbol: "≋",
+            backgroundColor: "#D8BFD8",
+            color: "#228B22",
+            rarity: 0.5,
+            smoothness: 30,
+          },
+          {
+            name: "Mushrooms",
+            symbol: "♠",
+            backgroundColor: "#FF4500",
+            color: "#FFD700",
+            rarity: 0.7,
+            smoothness: 20,
+          },
+          {
+            name: "Glowing Fireflies",
+            symbol: "☠",
+            backgroundColor: "#ADD8E6",
+            color: "#FF1493",
+            rarity: 0.9,
+            smoothness: 10,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Elk",
+            symbol: "🦌",
+            color: "#8B4513",
+          },
+          {
+            name: "Owl",
+            symbol: "🦉",
+            color: "#663399",
+          },
+          {
+            name: "Fairy",
+            symbol: "🧚‍♀️",
+            color: "#FF69B4",
+          },
+        ],
+      };
+
+      var timelessDesert = {
+        environment: {
+          name: "Timeless Desert",
+          danger: 6,
+          enemyCount: 5,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Sand",
+          symbol: "▲",
+          backgroundColor: "#F0E68C",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Cacti",
+            symbol: "≋",
+            backgroundColor: "#006400",
+            color: "#FFD700",
+            rarity: 0.5,
+            smoothness: 30,
+          },
+          {
+            name: "Oasis",
+            symbol: "♠",
+            backgroundColor: "#20B2AA",
+            color: "#00FFFF",
+            rarity: 0.9,
+            smoothness: 10,
+          },
+          {
+            name: "Ancient Ruins",
+            symbol: "☠",
+            backgroundColor: "#D2B48C",
+            color: "#A0522D",
+            rarity: 0.99,
+            smoothness: 5,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Scorpion",
+            symbol: "🦂",
+            color: "#8B4513",
+          },
+          {
+            name: "Vulture",
+            symbol: "🦅",
+            color: "#800000",
+          },
+          {
+            name: "Camel",
+            symbol: "🐫",
+            color: "#CD853F",
+          },
+        ],
+      };
+
+      var frozenTundra = {
+        environment: {
+          name: "Frozen Tundra",
+          danger: 9,
+          enemyCount: 6,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Snow",
+          symbol: "▲",
+          backgroundColor: "#F0F8FF",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Icicles",
+            symbol: "≋",
+            backgroundColor: "#00BFFF",
+            color: "#FFFFFF",
+            rarity: 0.4,
+            smoothness: 30,
+          },
+          {
+            name: "Pine Tree",
+            symbol: "♠",
+            backgroundColor: "#2E8B57",
+            color: "#FFD700",
+            rarity: 0.8,
+            smoothness: 25,
+          },
+          {
+            name: "Frozen Bones",
+            symbol: "☠",
+            backgroundColor: "#D3D3D3",
+            color: "#00FFFF",
+            rarity: 0.99,
+            smoothness: 10,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Snow Yeti",
+            symbol: "🗿",
+            color: "#E0FFFF",
+          },
+          {
+            name: "Ice Dragon",
+            symbol: "🐉",
+            color: "#B0E0E6",
+          },
+          {
+            name: "Frost Wraith",
+            symbol: "👻",
+            color: "#ADD8E6",
+          },
+        ],
+      };
+
+      var heartland = {
+        environment: {
+          name: "Heartland",
+          danger: 5,
           enemyCount: 3,
           worldSize: 15,
         },
         floor_tile: {
           name: "Grass",
-          symbol: "♨",
-          backgroundColor: "#7CFC00",
+          symbol: "▲",
+          backgroundColor: "#5A864F",
           color: "#FFFFFF",
+          canWalk: true,
         },
         prop_types: [
           {
-            name: "Flowers",
-            symbol: "❀",
-            backgroundColor: "#FF1493",
-            color: "#FFD700",
-            rarity: 0.3,
+            name: "Mist",
+            symbol: "≋",
+            backgroundColor: "#C0C0C0",
+            color: "#DDDDDD",
+            rarity: 0.4,
+            smoothness: 10,
           },
           {
             name: "Tree",
-            symbol: "🌳",
+            symbol: "♠",
             backgroundColor: "#228B22",
-            color: "#FFD700",
+            color: "#FFFFFF",
             rarity: 0.7,
+            smoothness: 20,
           },
           {
-            name: "Ancient Ruins",
-            symbol: "♜",
-            backgroundColor: "#D2B48C",
-            color: "#8B4513",
+            name: "Mushroom",
+            symbol: "♣",
+            backgroundColor: "#964B00",
+            color: "#FFD700",
             rarity: 0.95,
+            smoothness: 10,
           },
         ],
         creature_types: [
           {
-            name: "Sheep",
-            symbol: "🐑",
-            color: "#FFFFFF",
+            name: "Owl",
+            symbol: "🦉",
+            color: "#704214",
           },
           {
-            name: "Rabbit",
-            symbol: "🐇",
+            name: "Fox",
+            symbol: "🦊",
             color: "#FF4500",
           },
           {
-            name: "Deer",
-            symbol: "🦌",
-            color: "#8B4513",
+            name: "Squirrel",
+            symbol: "🐿️",
+            color: "#A0522D",
           },
         ],
       };
 
-      // stats -- type, range, damage, health, attackSpeed, statEff
+      var luminousGlades = {
+        environment: {
+          name: "Luminous Glades",
+          danger: 6,
+          enemyCount: 5,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Glowing Moss",
+          symbol: "▲",
+          backgroundColor: "#00FF00",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Floating Orbs",
+            symbol: "⦿",
+            backgroundColor: "#FFD700",
+            color: "#800080",
+            rarity: 0.4,
+            smoothness: 25,
+          },
+          {
+            name: "Luminous Trees",
+            symbol: "♠",
+            backgroundColor: "#008000",
+            color: "#FFFF00",
+            rarity: 0.5,
+            smoothness: 30,
+          },
+          {
+            name: "Glowing Flowers",
+            symbol: "❀",
+            backgroundColor: "#FF69B4",
+            color: "#00FFFF",
+            rarity: 0.85,
+            smoothness: 15,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Glowbug",
+            symbol: "🐞",
+            color: "#FFD700",
+          },
+          {
+            name: "Will-o'-the-Wisp",
+            symbol: "🔥",
+            color: "#FF4500",
+          },
+          {
+            name: "Spirit Fox",
+            symbol: "🦊",
+            color: "#00FF00",
+          },
+        ],
+      };
+
+      var floatingIslands = {
+        environment: {
+          name: "Floating Islands",
+          danger: 8,
+          enemyCount: 6,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Sky",
+          symbol: "☁",
+          backgroundColor: "#B0E2FF",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Floating Rock",
+            symbol: "≋",
+            backgroundColor: "#A9A9A9",
+            color: "#808080",
+            rarity: 0.3,
+            smoothness: 30,
+          },
+          {
+            name: "Glowing Crystal",
+            symbol: "♦",
+            backgroundColor: "#E6E6FA",
+            color: "#FFD700",
+            rarity: 0.2,
+            smoothness: 40,
+          },
+          {
+            name: "Waterfall",
+            symbol: "☂",
+            backgroundColor: "#1E90FF",
+            color: "#ADD8E6",
+            rarity: 0.9,
+            smoothness: 15,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Sky Serpent",
+            symbol: "🐉",
+            color: "#9932CC",
+          },
+          {
+            name: "Winged Lion",
+            symbol: "🦁",
+            color: "#FFA500",
+          },
+          {
+            name: "Cloud Elemental",
+            symbol: "🌩️",
+            color: "#FFFFFF",
+          },
+        ],
+      };
+
+      var rockyHighlands = {
+        environment: {
+          name: "Rocky Highlands",
+          danger: 8,
+          enemyCount: 5,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Rock",
+          symbol: "▲",
+          backgroundColor: "#A9A9A9",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Boulders",
+            symbol: "≋",
+            backgroundColor: "#808080",
+            color: "#FFA500",
+            rarity: 0.3,
+            smoothness: 40,
+          },
+          {
+            name: "Pine Trees",
+            symbol: "♠",
+            backgroundColor: "#006400",
+            color: "#228B22",
+            rarity: 0.7,
+            smoothness: 30,
+          },
+          {
+            name: "Mountain Goats",
+            symbol: "🐐",
+            backgroundColor: "#F0E68C",
+            color: "#8B4513",
+            rarity: 0.9,
+            smoothness: 15,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Eagle",
+            symbol: "🦅",
+            color: "#FFD700",
+          },
+          {
+            name: "Mountain Lion",
+            symbol: "🦁",
+            color: "#FF8C00",
+          },
+          {
+            name: "Bobcat",
+            symbol: "😺",
+            color: "#A52A2A",
+          },
+        ],
+      };
+
+      var mysticCaverns = {
+        environment: {
+          name: "Mystic Cavern",
+          danger: 6,
+          enemyCount: 5,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Stone",
+          symbol: "▲",
+          backgroundColor: "#808080",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Glowing Crystals",
+            symbol: "≋",
+            backgroundColor: "#00FFFF",
+            color: "#FFFFFF",
+            rarity: 0.5,
+            smoothness: 30,
+          },
+          {
+            name: "Ancient Runes",
+            symbol: "♠",
+            backgroundColor: "#A020F0",
+            color: "#FFFF00",
+            rarity: 0.8,
+            smoothness: 20,
+          },
+          {
+            name: "Fossilized Bones",
+            symbol: "☠",
+            backgroundColor: "#D2B48C",
+            color: "#FF0000",
+            rarity: 0.999,
+            smoothness: 10,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Wisp",
+            symbol: "🌟",
+            color: "#FFD700",
+          },
+          {
+            name: "Shadow Beast",
+            symbol: "👻",
+            color: "#7B68EE",
+          },
+          {
+            name: "Crystal Elemental",
+            symbol: "💎",
+            color: "#00CED1",
+          },
+        ],
+      };
+
+      var elementalWasteland = {
+        environment: {
+          name: "Elemental Wasteland",
+          danger: 9,
+          enemyCount: 6,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Cracked Earth",
+          symbol: "▲",
+          backgroundColor: "#7F5230",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Burning Cracks",
+            symbol: "≋",
+            backgroundColor: "#FF4500",
+            color: "#FFD700",
+            rarity: 0.2,
+            smoothness: 35,
+          },
+          {
+            name: "Twisted Trees",
+            symbol: "♠",
+            backgroundColor: "#8B4513",
+            color: "#FFA500",
+            rarity: 0.8,
+            smoothness: 15,
+          },
+          {
+            name: "Ancient Relics",
+            symbol: "☠",
+            backgroundColor: "#DAA520",
+            color: "#C0C0C0",
+            rarity: 0.999,
+            smoothness: 5,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Ember Elemental",
+            symbol: "🔥",
+            color: "#FF4500",
+          },
+          {
+            name: "Earth Golem",
+            symbol: "🗿",
+            color: "#8B4513",
+          },
+          {
+            name: "Abyssal Shadow",
+            symbol: "🌑",
+            color: "#000000",
+          },
+        ],
+      };
+
+      var underwaterCity = {
+        environment: {
+          name: "Underwater City",
+          danger: 9,
+          enemyCount: 6,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Seabed",
+          symbol: "▲",
+          backgroundColor: "#008080",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Coral Reef",
+            symbol: "≋",
+            backgroundColor: "#FF4500",
+            color: "#FFD700",
+            rarity: 0.2,
+            smoothness: 40,
+          },
+          {
+            name: "Kelp Forest",
+            symbol: "♠",
+            backgroundColor: "#006400",
+            color: "#00FF00",
+            rarity: 0.6,
+            smoothness: 30,
+          },
+          {
+            name: "Sunken Ship",
+            symbol: "☠",
+            backgroundColor: "#A9A9A9",
+            color: "#FF8C00",
+            rarity: 0.9,
+            smoothness: 25,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Shark",
+            symbol: "🦈",
+            color: "#0000CD",
+          },
+          {
+            name: "Octopus",
+            symbol: "🐙",
+            color: "#8A2BE2",
+          },
+          {
+            name: "Mermaid",
+            symbol: "🧜‍♀️",
+            color: "#00BFFF",
+          },
+        ],
+      };
+
+      var ancientRuins = {
+        environment: {
+          name: "Ancient Ruins",
+          danger: 9,
+          enemyCount: 6,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Mossy Stone",
+          symbol: "▲",
+          backgroundColor: "#5C6E3A",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Cracked Pillars",
+            symbol: "∞",
+            backgroundColor: "#6D6E5A",
+            color: "#D9D9D9",
+            rarity: 0.2,
+            smoothness: 45,
+          },
+          {
+            name: "Ancient Vines",
+            symbol: "∞",
+            backgroundColor: "#317F43",
+            color: "#7FFF00",
+            rarity: 0.4,
+            smoothness: 35,
+          },
+          {
+            name: "Broken Statues",
+            symbol: "☥",
+            backgroundColor: "#6D6E5A",
+            color: "#DAA520",
+            rarity: 0.9,
+            smoothness: 20,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Guardian",
+            symbol: "🗿",
+            color: "#808080",
+          },
+          {
+            name: "Spirit",
+            symbol: "👻",
+            color: "#7B68EE",
+          },
+          {
+            name: "Shadow",
+            symbol: "🌑",
+            color: "#696969",
+          },
+        ],
+      };
+
+      var whisperingSands = {
+        environment: {
+          name: "Whispering Sands",
+          danger: 6,
+          enemyCount: 5,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Sand",
+          symbol: "▲",
+          backgroundColor: "#FFE4B5",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Cacti",
+            symbol: "≋",
+            backgroundColor: "#8B0000",
+            color: "#FFD700",
+            rarity: 0.5,
+            smoothness: 15,
+          },
+          {
+            name: "Palm Tree",
+            symbol: "♠",
+            backgroundColor: "#006400",
+            color: "#FFFF00",
+            rarity: 0.8,
+            smoothness: 20,
+          },
+          {
+            name: "Skull",
+            symbol: "☠",
+            backgroundColor: "#D3D3D3",
+            color: "#FF4500",
+            rarity: 0.95,
+            smoothness: 10,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Sand Serpent",
+            symbol: "🐍",
+            color: "#CD853F",
+          },
+          {
+            name: "Scorpion",
+            symbol: "🦂",
+            color: "#800000",
+          },
+          {
+            name: "Desert Rat",
+            symbol: "🐀",
+            color: "#DAA520",
+          },
+        ],
+      };
+
+      var darkAbyss = {
+        environment: {
+          name: "Dark Abyss",
+          danger: 9,
+          enemyCount: 6,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Water",
+          symbol: "≈",
+          backgroundColor: "#000080",
+          color: "#FFFFFF",
+          canWalk: false,
+        },
+        prop_types: [
+          {
+            name: "Seaweed",
+            symbol: "ϟ",
+            backgroundColor: "#008000",
+            color: "#00FFFF",
+            rarity: 0.2,
+            smoothness: 40,
+          },
+          {
+            name: "Shipwreck",
+            symbol: "⛴",
+            backgroundColor: "#1E90FF",
+            color: "#FFFF00",
+            rarity: 0.6,
+            smoothness: 30,
+          },
+          {
+            name: "Glowing Crystals",
+            symbol: "✦",
+            backgroundColor: "#483D8B",
+            color: "#FF1493",
+            rarity: 0.999,
+            smoothness: 5,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Giant Squid",
+            symbol: "🦑",
+            color: "#FF4500",
+          },
+          {
+            name: "Ghost Shark",
+            symbol: "👻",
+            color: "#FFD700",
+          },
+          {
+            name: "Deep Sea Angler",
+            symbol: "🎣",
+            color: "#00CED1",
+          },
+        ],
+      };
+
+      // stats -- type, range, damage, health, attackSpeed, statEff, symbol
       var itemsJson = {
         fists: {
           type: "weapon",
-          range: 1,
+          range: 0,
           damage: 1,
           health: 0,
           attackSpeed: 1,
@@ -128,7 +1141,7 @@
         },
         rags: {
           type: "armor",
-          range: 0,
+          range: 1,
           damage: 0,
           health: 1,
           attackSpeed: 0,
@@ -155,7 +1168,7 @@
         },
         knife: {
           type: "weapon",
-          range: 1,
+          range: 2,
           damage: 1,
           health: 0,
           attackSpeed: 1,
@@ -173,7 +1186,7 @@
         },
         bow: {
           type: "weapon",
-          range: 3,
+          range: 7,
           damage: 1,
           health: 0,
           attackSpeed: 1,
@@ -240,36 +1253,191 @@
         if (event.key === "ArrowUp") {
           arrowUp();
         }
+        if (event.key === "ArrowLeft") {
+          arrowLeft();
+        }
+        if (event.key === "ArrowRight") {
+          arrowRight();
+        }
+        if (event.key === "s") {
+          arrowDown();
+        }
+        if (event.key === "w") {
+          arrowUp();
+        }
+        if (event.key === "a") {
+          arrowLeft();
+        }
+        if (event.key === "d") {
+          arrowRight();
+        }
         if (event.key === "Enter") {
+          enter();
+        }
+        if (event.key === " ") {
           enter();
         }
       });
 
       function arrowDown() {
-        menuId++;
-
-        if (menuId >= items.length) {
-          menuId = items.length - 1;
-        }
-
-        updateStats();
+        bottomCooldown(500);
       }
       function arrowUp() {
-        menuId--;
-
-        if (menuId < 0) {
-          menuId = 0;
+        topCooldown(500);
+      }
+      function arrowLeft() {
+        if (blocking) {
+          return;
         }
 
-        updateStats();
+        leftCooldown(500);
+      }
+      function arrowRight() {
+        if (blocking) {
+          return;
+        }
+
+        rightCooldown(2000);
       }
       function enter() {
-        equipItem(items[menuId][0]);
-
-        updateStats();
+        centerCooldown(200);
       }
 
-      var worldCoords = [0, 0]; // TODO biomes planned and stored
+      var worldMap = [];
+      var worldMapSize = 200; // must be divisible by 5
+      var worldCoords = [0, 0];
+
+      function getEnvJsonId() {
+        if (
+          worldCoords[0] < (worldMapSize / 5) * 1 &&
+          worldCoords[1] < (worldMapSize / 5) * 1
+        ) {
+          return 16;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 1 &&
+          worldCoords[1] < (worldMapSize / 5) * 2
+        ) {
+          return 12;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 1 &&
+          worldCoords[1] < (worldMapSize / 5) * 3
+        ) {
+          return 7;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 1 &&
+          worldCoords[1] < (worldMapSize / 5) * 4
+        ) {
+          return 4;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 1 &&
+          worldCoords[1] < (worldMapSize / 5) * 5
+        ) {
+          return 1;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 2 &&
+          worldCoords[1] < (worldMapSize / 5) * 1
+        ) {
+          return 0;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 2 &&
+          worldCoords[1] < (worldMapSize / 5) * 2
+        ) {
+          return 13;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 2 &&
+          worldCoords[1] < (worldMapSize / 5) * 3
+        ) {
+          return 8;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 2 &&
+          worldCoords[1] < (worldMapSize / 5) * 4
+        ) {
+          return 0;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 2 &&
+          worldCoords[1] < (worldMapSize / 5) * 5
+        ) {
+          return 0;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 3 &&
+          worldCoords[1] < (worldMapSize / 5) * 1
+        ) {
+          return 17;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 3 &&
+          worldCoords[1] < (worldMapSize / 5) * 2
+        ) {
+          return 0;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 3 &&
+          worldCoords[1] < (worldMapSize / 5) * 3
+        ) {
+          return 9;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 3 &&
+          worldCoords[1] < (worldMapSize / 5) * 4
+        ) {
+          return 5;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 3 &&
+          worldCoords[1] < (worldMapSize / 5) * 5
+        ) {
+          return 2;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 4 &&
+          worldCoords[1] < (worldMapSize / 5) * 1
+        ) {
+          return 0;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 4 &&
+          worldCoords[1] < (worldMapSize / 5) * 2
+        ) {
+          return 14;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 4 &&
+          worldCoords[1] < (worldMapSize / 5) * 3
+        ) {
+          return 10;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 4 &&
+          worldCoords[1] < (worldMapSize / 5) * 4
+        ) {
+          return 0;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 4 &&
+          worldCoords[1] < (worldMapSize / 5) * 5
+        ) {
+          return 0;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 5 &&
+          worldCoords[1] < (worldMapSize / 5) * 1
+        ) {
+          return 18;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 5 &&
+          worldCoords[1] < (worldMapSize / 5) * 2
+        ) {
+          return 15;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 5 &&
+          worldCoords[1] < (worldMapSize / 5) * 3
+        ) {
+          return 11;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 5 &&
+          worldCoords[1] < (worldMapSize / 5) * 4
+        ) {
+          return 6;
+        } else if (
+          worldCoords[0] < (worldMapSize / 5) * 5 &&
+          worldCoords[1] < (worldMapSize / 5) * 5
+        ) {
+          return 3;
+        } else {
+          return 0;
+        }
+      }
+
       var health = 10;
       var equippedWeapon = "";
       var equippedArmor = "";
@@ -299,11 +1467,7 @@
       }
       function updateStats() {
         var sT = "Health: " + health + " / " + (10 + getStat("health", true));
-        sT +=
-          "<br>range: " +
-          (15 + getStat("range", false)) +
-          " / " +
-          (15 + getStat("range", true));
+        sT += "<br>range: " + getStat("range", false) + " tiles";
         sT += "<br>damage: " + getStat("damage", false);
         sT += "<br>attackSpeed: " + getStat("attackSpeed", false);
         document.getElementById("statsDiv").innerHTML = sT;
@@ -347,24 +1511,28 @@
           color: "#ffffff",
           backgroundColor: "#bfbfbf",
           symbol: "^",
+          canWalk: true,
         },
         {
           name: "Down",
           color: "#ffffff",
           backgroundColor: "#bfbfbf",
           symbol: "v",
+          canWalk: true,
         },
         {
           name: "Left",
           color: "#ffffff",
           backgroundColor: "#bfbfbf",
           symbol: "<",
+          canWalk: true,
         },
         {
           name: "Right",
           color: "#ffffff",
           backgroundColor: "#bfbfbf",
           symbol: ">",
+          canWalk: true,
         },
       ];
 
@@ -372,9 +1540,17 @@
       function updateSpecialTiles() {
         specialTiles = [
           { i: 0, j: Math.round(worldSize / 2), type: "Up" },
-          { i: worldSize + 1, j: Math.round(worldSize / 2), type: "Down" },
+          {
+            i: worldSize + 1,
+            j: Math.round(worldSize / 2),
+            type: "Down",
+          },
           { i: Math.round(worldSize / 2), j: 0, type: "Left" },
-          { i: Math.round(worldSize / 2), j: worldSize + 1, type: "Right" },
+          {
+            i: Math.round(worldSize / 2),
+            j: worldSize + 1,
+            type: "Right",
+          },
         ];
       }
 
@@ -387,6 +1563,29 @@
       function init() {
         worldTable = document.getElementById("world");
         creaturesParent = document.getElementById("creatures");
+        envJsons = [
+          lavaCanyon,
+          celestialRealm,
+          enchantedForest,
+          lavaFortress,
+          crystalCaverns,
+          mistyMoorlands,
+          whisperingWoods,
+          timelessDesert,
+          frozenTundra,
+          heartland,
+          luminousGlades,
+          floatingIslands,
+          elementalWasteland,
+          rockyHighlands,
+          mysticCaverns,
+          ancientRuins,
+          whisperingSands,
+          underwaterCity,
+          darkAbyss,
+        ];
+        worldCoords = [worldMapSize / 2, worldMapSize / 2];
+
         createWorldData();
         drawWorld();
         createCreature("player", 0, 0);
@@ -396,7 +1595,7 @@
       }
 
       function createWorldData() {
-        baseEnvJson = rollingPasture;
+        baseEnvJson = envJsons[getEnvJsonId()];
 
         worldSize = baseEnvJson.environment.worldSize;
         updateSpecialTiles();
@@ -404,7 +1603,7 @@
         baseEnvJson.prop_types.forEach((type, index) => {
           noise.seed(seed * index);
 
-          //var smoothness = type.smoothness || defaultSmoothness;
+          var smoothness = type.smoothness || defaultSmoothness;
 
           for (i = 0; i < worldSize + 2; i++) {
             if (!worldData[i]) {
@@ -412,7 +1611,7 @@
             }
             for (j = 0; j < worldSize + 2; j++) {
               if (!worldData[i][j]) {
-                // TODO only first prop_type (group) being considered
+                // TODO fix only first prop_type (group) being considered
                 const noiseX =
                   (i + worldCoords[0] * (worldSize + 2)) / defaultSmoothness;
                 const noiseY =
@@ -450,7 +1649,13 @@
           }
         } */
 
-        document.getElementById("worldDiv").innerHTML = worldCoords;
+        document.getElementById("worldDiv").innerHTML =
+          envJsons[getEnvJsonId()].environment.name +
+          "<br>(X: " +
+          worldCoords[0] +
+          ", Y: " +
+          worldCoords[1] +
+          ")";
 
         updateStats();
         enableBars(true, 1000);
@@ -516,7 +1721,8 @@
       }
 
       function createCreatures() {
-        for (h = 0; h < baseEnvJson.environment.enemyCount; h++) {
+        eC = randomRange(0, baseEnvJson.environment.enemyCount);
+        for (h = 0; h < eC; h++) {
           createCreature(
             baseEnvJson.creature_types[
               randomRange(0, baseEnvJson.creature_types.length - 1)
@@ -622,6 +1828,10 @@
       }
 
       function setSelTile(tile) {
+        if (!tile.type.canWalk) {
+          return;
+        }
+
         if (selTile != tile) {
           selTile = tile;
         } else {
@@ -823,6 +2033,11 @@
 
         if (isTile) {
           targetElement = document.getElementById(targetOrTile.id);
+
+          if (!targetOrTile.type.canWalk) {
+            chooseNextAIAction(creature);
+            return;
+          }
         } else {
           targetElement = targetOrTile;
         }
@@ -1155,6 +2370,29 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
       }
 
+      function playerAttack() {
+        if (!selCreature) {
+          return;
+        }
+
+        var attackRange = Math.max(30 * getStat("range", false), 30);
+        var shooting = getStat("range", false) > 3;
+
+        var playerElement = document.getElementById("player1");
+        if (
+          getDistanceBetweenElements(playerElement, selCreature) <= attackRange
+        ) {
+          if (shooting) {
+            createEffect("💥", playerElement, selCreature);
+          }
+
+          selCreature.dataset.health -= getStat("damage", false);
+          updateCreatureJSON(selCreature);
+        } else {
+          createWarning("range", playerElement, 500);
+        }
+      }
+
       function getStat(stat, excludeBuffs) {
         if (stat == "range") {
           return (
@@ -1203,7 +2441,7 @@
 
         addItem("potion", 1);
         addItem("knife", 1);
-        addItem("helmet", 1);
+        addItem("bow", 1);
         addItem("key", 1);
       }
       function playerDamage(amount) {
@@ -1284,7 +2522,7 @@
         document.getElementById("invText").innerHTML = retText;
       }
 
-      // stats -- type, range, damage, health, attackSpeed, statEff
+      // stats -- type, range, damage, health, attackSpeed, statEff, symbol
       function addItem(addItem, amount) {
         var added = false;
 
@@ -1319,13 +2557,13 @@
           if (items[i][0] == equipItem) {
             var iObj = itemsJson[items[i][0]];
             if (iObj.type == "weapon") {
-              equippedWeapon = equippedWeapon == "" ? equipItem : "";
+              equippedWeapon = equippedWeapon != equipItem ? equipItem : "";
             } else if (iObj.type == "armor") {
-              equippedArmor = equippedArmor == "" ? equipItem : "";
+              equippedArmor = equippedArmor != equipItem ? equipItem : "";
             } else if (iObj.type == "potion") {
-              equippedPotion = equippedPotion == "" ? equipItem : "";
+              equippedPotion = equippedPotion != equipItem ? equipItem : "";
             } else if (iObj.type == "item") {
-              equippedItem = equippedItem == "" ? equipItem : "";
+              equippedItem = equippedItem != equipItem ? equipItem : "";
             }
           }
         }
@@ -1568,6 +2806,7 @@
         padding-top: 2px;
         padding-left: 2px;
         user-select: none;
+        padding: 5px;
       }
       .effect {
         position: fixed;
@@ -1606,31 +2845,31 @@
       <div class="panel">
         <div class="panel-container">
           <div style="grid-area: top">
-            <button id="topButton" onclick="topCooldown(2000)">
+            <button id="topButton" onclick="arrowUp()">
               <span id="topText" class="button-text"></span>
               <div id="topBLoad" class="loading-bar"></div>
             </button>
           </div>
           <div style="grid-area: left">
-            <button id="leftButton" onclick="leftCooldown(500)">
+            <button id="leftButton" onclick="arrowLeft()">
               <span id="leftText" class="button-text"></span>
               <div id="leftBLoad" class="loading-bar"></div>
             </button>
           </div>
           <div style="grid-area: center">
-            <button id="centerButton" onclick="centerCooldown(200)">
-              <span id="blockText" class="button-text"></span>
+            <button id="centerButton" onclick="enter()">
+              <span id="blockText" class="button-text">⚔️</span>
               <div id="centerBLoad" class="loading-bar"></div>
             </button>
           </div>
           <div style="grid-area: right">
-            <button id="rightButton" onclick="rightCooldown(2000)">
+            <button id="rightButton" onclick="arrowRight()">
               <span id="rightText" class="button-text"></span>
               <div id="rightBLoad" class="loading-bar"></div>
             </button>
           </div>
           <div style="grid-area: bottom">
-            <button id="bottomButton" onclick="bottomCooldown(2000)">
+            <button id="bottomButton" onclick="arrowDown()">
               <span id="bottomText" class="button-text"></span>
               <div id="bottomBLoad" class="loading-bar"></div>
             </button>
@@ -1773,31 +3012,30 @@
 
   // Top
   function topCooldown(time) {
-    // if (selCreature != null) {
-    /* actType = "top";
-      enableBars(false, time);
-      topBLoad.style.width = "0%";
-      intervalId = setInterval(updateLoadingBar, time); */
-    // } else {
-    arrowUp();
-    // }
+    // actType = "top";
+    // enableBars(false, time);
+    // topBLoad.style.width = "0%";
+    // intervalId = setInterval(updateLoadingBar, time);
+
+    menuId--;
+    if (menuId < 0) {
+      menuId = 0;
+    }
+
+    updateStats();
   }
   // Left
   function leftCooldown(time) {
-    // if (selCreature != null) {
-    /* actType = "left";
-      enableBars(false, time);
-      leftBLoad.style.width = "0%";
-      intervalId = setInterval(updateLoadingBar, time); */
-    // } else {
+    // actType = "left";
+    // enableBars(false, time);
+    // leftBLoad.style.width = "0%";
+    // intervalId = setInterval(updateLoadingBar, time);
+
     useItem(items[menuId][0]);
-    // }
   }
   // Right
   function rightCooldown(time) {
     if (selCreature != null) {
-      actType = "right";
-
       var aS = getStat("attackSpeed", false);
       if (aS >= 1 && aS < 5) {
         time = 1500;
@@ -1808,51 +3046,40 @@
       } else if (aS >= 15) {
         time = 500;
       }
+      // actType = "right";
+      // enableBars(false, time);
+      // rightBLoad.style.width = "0%";
+      // intervalId = setInterval(updateLoadingBar, time);
 
-      enableBars(false, time);
-      rightBLoad.style.width = "0%";
-      intervalId = setInterval(updateLoadingBar, time);
-
-      if (selCreature) {
-        var playerElement = document.getElementById("player1");
-        console.log(getDistanceBetweenElements(playerElement, selCreature));
-        if (
-          getDistanceBetweenElements(playerElement, selCreature) <=
-          15 + getStat("range") * 10
-        ) {
-          selCreature.dataset.health -= getStat("damage", false);
-          updateCreatureJSON(selCreature);
-        } else {
-          createWarning("range", playerElement, 500);
-        }
-      }
+      playerAttack();
     } else {
-      enter();
+      equipItem(items[menuId][0]);
+
+      updateStats();
     }
   }
   // Down
   function bottomCooldown(time) {
-    // if (selCreature != null) {
-    /* actType = "bottom";
-      enableBars(false, time);
-      bottomBLoad.style.width = "0%";
-      intervalId = setInterval(updateLoadingBar, time); */
-    // } else {
-    arrowDown();
-    // }
+    // actType = "bottom";
+    // enableBars(false, time);
+    // bottomBLoad.style.width = "0%";
+    // intervalId = setInterval(updateLoadingBar, time);
+
+    menuId++;
+    if (menuId >= items.length) {
+      menuId = items.length - 1;
+    }
+
+    updateStats();
   }
   // Center
   function centerCooldown(time) {
-    // if (selCreature != null) {
-    actType = "center";
-    /* enableBars(false, time);
-    centerBLoad.style.width = "0%";
-    intervalId = setInterval(updateLoadingBar, time); */
+    // actType = "center";
+    // enableBars(false, time);
+    // centerBLoad.style.width = "0%";
+    // intervalId = setInterval(updateLoadingBar, time);
 
     doBlock();
-    // } else {
-    //   enter();
-    // }
   }
 
   function enableBars(enable, time) {
@@ -1932,7 +3159,7 @@
   function doBlock() {
     blocking = !blocking;
     enableBars(!blocking, -1);
-    //blockText.innerHTML = blocking ? "Blocking" : "Block";
+    blockText.innerHTML = blocking ? "🛡️" : "⚔️";
   }
 
   function repeatFunction() {
@@ -1949,7 +3176,7 @@
       selCreature != null ? "^" : "^";
     document.getElementById("leftText").innerHTML =
       selCreature != null ? "Use" : "Use";
-    blockText.innerHTML = selCreature != null ? "Block" : "Block";
+    //blockText.innerHTML = selCreature != null ? "🛡️" : "🛡️";
     document.getElementById("rightText").innerHTML =
       selCreature != null ? "Attack" : "Equip";
     document.getElementById("bottomText").innerHTML =

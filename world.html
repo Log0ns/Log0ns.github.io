@@ -1138,6 +1138,7 @@
           attackSpeed: 1,
           statEff: { stat: "none", amount: 0 },
           symbol: "⚔️",
+          breakChance: 0,
         },
         rags: {
           type: "armor",
@@ -1174,6 +1175,7 @@
           attackSpeed: 1,
           statEff: { stat: "none", amount: 0 },
           symbol: "⚔️",
+          breakChance: 10,
         },
         helmet: {
           type: "armor",
@@ -1192,6 +1194,7 @@
           attackSpeed: 1,
           statEff: { stat: "none", amount: 0 },
           symbol: "🏹",
+          breakChance: 15,
         },
         potion: {
           type: "potion",
@@ -1219,6 +1222,15 @@
           attackSpeed: 0,
           statEff: { stat: "none", amount: 0 },
           symbol: "📜",
+        },
+        experience: {
+          type: "item",
+          range: 0,
+          damage: 0,
+          health: 0,
+          attackSpeed: 0,
+          statEff: { stat: "none", amount: 0 },
+          symbol: "✨",
         },
       };
 
@@ -1286,17 +1298,9 @@
         topCooldown(500);
       }
       function arrowLeft() {
-        if (blocking) {
-          return;
-        }
-
         leftCooldown(500);
       }
       function arrowRight() {
-        if (blocking) {
-          return;
-        }
-
         rightCooldown(2000);
       }
       function enter() {
@@ -1307,7 +1311,7 @@
       var worldMapSize = 200; // must be divisible by 5
       var worldCoords = [0, 0];
 
-      function getEnvJsonId() {
+      function getCurEnvJsonId() {
         if (
           worldCoords[0] < (worldMapSize / 5) * 1 &&
           worldCoords[1] < (worldMapSize / 5) * 1
@@ -1487,6 +1491,37 @@
         updateInfoText();
       }
 
+      function getCreatureDrop(creature) {
+        if (creature.id.startsWith("Seraph")) {
+          // TODO special drops
+        } else {
+          return getItemDrop();
+        }
+      }
+      function getItemDrop() {
+        if (getItemAmount("knife") < 1 && getItemAmount("bow") < 1) {
+          var ranVal = randomRange(0, 1);
+          if (ranVal == 0) {
+            return "knife"; // TODO more base items
+          } else if (ranVal == 1) {
+            return "bow";
+          }
+        } else {
+          var ranVal = randomRange(0, 4);
+          if (ranVal == 0) {
+            return "experience"; // TODO leveling
+          } else if (ranVal == 1) {
+            return "knife"; // TODO more base items
+          } else if (ranVal == 2) {
+            return "helmet";
+          } else if (ranVal == 3) {
+            return "bow";
+          } else if (ranVal == 4) {
+            return "potion";
+          }
+        }
+      }
+
       var tileTypes = [
         { name: "Home", color: "#ff9f60", symbol: "▲", act: "_sleep" },
         { name: "Dirt", color: "#aaff80", symbol: "#", act: "" },
@@ -1595,7 +1630,7 @@
       }
 
       function createWorldData() {
-        baseEnvJson = envJsons[getEnvJsonId()];
+        baseEnvJson = envJsons[getCurEnvJsonId()];
 
         worldSize = baseEnvJson.environment.worldSize;
         updateSpecialTiles();
@@ -1650,7 +1685,7 @@
         } */
 
         document.getElementById("worldDiv").innerHTML =
-          envJsons[getEnvJsonId()].environment.name +
+          envJsons[getCurEnvJsonId()].environment.name +
           "<br>(X: " +
           worldCoords[0] +
           ", Y: " +
@@ -1708,6 +1743,8 @@
         createCreatures();
 
         removeBuffs();
+
+        setBlock(false);
 
         //updateStats();
         //enableBars(true, 1000);
@@ -1821,9 +1858,9 @@
           creatureName + creatureNum.toString()
         );
 
-        if (selTile) {
-          setSelTile(selTile);
-        }
+        // if (selTile) {
+        //   setSelTile(selTile);
+        // }
         setSelCreature(creatureElement);
       }
 
@@ -1859,6 +1896,15 @@
         return type.name;
       }
 
+      function getCreatureTile(creature) {
+        for (i = 0; i < worldSize + 2; i++) {
+          for (j = 0; j < worldSize + 2; j++) {
+            if (worldData[i][j].creature == creature.title) {
+              return worldData[i][j];
+            }
+          }
+        }
+      }
       function getTileCreature(id) {
         var idParts = id.split("_");
 
@@ -1996,7 +2042,7 @@
             tile = selCreature;
           }
         } else {
-          if (Math.random() < 0.4) {
+          if (Math.random() < 0.2) {
             createWarning("!", creatureElement, 2000);
             setTimeout(() => {
               createEffect(
@@ -2206,7 +2252,6 @@
         }
 
         var effectElement = document.getElementById(effect);
-
         if (!effectElement) {
           return;
         }
@@ -2216,18 +2261,27 @@
           effectElement.style.left = sourceElement.style.left;
         }
 
+        var targetCoords = [targetElement.offsetTop, targetElement.offsetLeft];
+
         var posY = effectElement.offsetTop - 20;
         var posX = effectElement.offsetLeft;
         var interval = setInterval(frame, 10);
         function frame() {
-          tilePosY = targetElement.offsetTop - 14;
-          tilePosX = targetElement.offsetLeft + 7;
+          // tilePosY = targetElement.offsetTop - 14;
+          // tilePosX = targetElement.offsetLeft + 7;
+          tilePosY = targetCoords[0] - 14;
+          tilePosX = targetCoords[1] + 7;
 
           if (checkPosition(posX, tilePosX, posY, tilePosY)) {
             clearInterval(interval);
             setTimeout(function () {
-              effectElement.parentNode.remove();
-              playerDamage(1);
+              effectElement.parentElement.remove();
+              if (
+                getDistanceBetweenElementAndPoint(targetElement, targetCoords) <
+                20
+              ) {
+                playerDamage(1);
+              }
             }, 500);
           } else {
             if (posY < tilePosY) {
@@ -2257,6 +2311,12 @@
       function getDistanceBetweenElements(i, j) {
         distX = i.offsetLeft - j.offsetLeft;
         distY = i.offsetTop - j.offsetTop;
+        distance = Math.sqrt(distX * distX + distY * distY);
+        return distance;
+      }
+      function getDistanceBetweenElementAndPoint(i, point) {
+        distX = i.offsetLeft - point[1];
+        distY = i.offsetTop - point[0];
         distance = Math.sqrt(distX * distX + distY * distY);
         return distance;
       }
@@ -2387,10 +2447,33 @@
           }
 
           selCreature.dataset.health -= getStat("damage", false);
-          updateCreatureJSON(selCreature);
+          createWarning("hit", playerElement, 400);
+
+          if (selCreature.dataset.health <= 0) {
+            creatureDeath(selCreature);
+          } else {
+            updateCreatureJSON(selCreature);
+          }
         } else {
           createWarning("range", playerElement, 500);
         }
+
+        if (equippedWeapon != "") {
+          var ranBreak = randomRange(1, 100);
+          if (ranBreak <= getEquippedWeapon().breakChance) {
+            removeItem(equippedWeapon, 1);
+            createWarning("broke", playerElement, 800);
+          }
+        }
+      }
+      function creatureDeath(creature) {
+        updateCreatureJSON(creature);
+
+        addItem(getCreatureDrop(creature), 1);
+
+        creaturesParent.removeChild(creature.parentElement);
+
+        selCreature = null;
       }
 
       function getStat(stat, excludeBuffs) {
@@ -2438,11 +2521,6 @@
         }
 
         updateStats();
-
-        addItem("potion", 1);
-        addItem("knife", 1);
-        addItem("bow", 1);
-        addItem("key", 1);
       }
       function playerDamage(amount) {
         if (secondsSinceCreate() < 5) {
@@ -2451,6 +2529,8 @@
 
         if (!blocking) {
           changeStat("health", -amount);
+        } else {
+          setBlock(false);
         }
       }
 
@@ -2546,6 +2626,16 @@
 
             if (items[i][1] <= 0) {
               items = items.filter((item) => item[0] !== removeItem);
+
+              if (removeItem == equippedWeapon) {
+                equippedWeapon = "";
+              } else if (removeItem == equippedArmor) {
+                equippedArmor = "";
+              } else if (removeItem == equippedPotion) {
+                equippedPotion = "";
+              } else if (removeItem == equippedItem) {
+                equippedItem = "";
+              }
             }
           }
         }
@@ -2553,6 +2643,10 @@
         updateStats();
       }
       function equipItem(equipItem) {
+        if (!equipItem || equipItem == "") {
+          return;
+        }
+
         for (i = 0; i < items.length; i++) {
           if (items[i][0] == equipItem) {
             var iObj = itemsJson[items[i][0]];
@@ -2571,7 +2665,7 @@
         updateStats();
       }
       function useItem(useItem) {
-        if (!useItem) {
+        if (!useItem || useItem == "") {
           return;
         }
 
@@ -3031,11 +3125,19 @@
     // leftBLoad.style.width = "0%";
     // intervalId = setInterval(updateLoadingBar, time);
 
-    useItem(items[menuId][0]);
+    if (menuId <= items.length) {
+      useItem(items[menuId][0]);
+    }
   }
   // Right
   function rightCooldown(time) {
     if (selCreature != null) {
+      if (!rightButton.disabled) {
+        console.log(intervalId); // TODO attack delay
+        playerAttack();
+        rightButton.disabled = true;
+      }
+
       var aS = getStat("attackSpeed", false);
       if (aS >= 1 && aS < 5) {
         time = 1500;
@@ -3045,15 +3147,20 @@
         time = 800;
       } else if (aS >= 15) {
         time = 500;
+      } else {
+        time = 2000;
       }
-      // actType = "right";
-      // enableBars(false, time);
-      // rightBLoad.style.width = "0%";
-      // intervalId = setInterval(updateLoadingBar, time);
 
-      playerAttack();
+      //actType = "right";
+      //enableBars(false, time);
+      //rightBLoad.style.width = "0%";
+      //intervalId = setInterval(updateLoadingBar, time);
+
+      intervalId = setInterval(enableRightButton, time);
     } else {
-      equipItem(items[menuId][0]);
+      if (menuId <= items.length) {
+        equipItem(items[menuId][0]);
+      }
 
       updateStats();
     }
@@ -3079,7 +3186,12 @@
     // centerBLoad.style.width = "0%";
     // intervalId = setInterval(updateLoadingBar, time);
 
-    doBlock();
+    setBlock(!blocking);
+  }
+
+  function enableRightButton() {
+    clearInterval(intervalId);
+    rightButton.disabled = false;
   }
 
   function enableBars(enable, time) {
@@ -3092,7 +3204,7 @@
       return;
     }
 
-    blocking = false;
+    setBlock(false); // TODO remove?
 
     topButton.disabled = !enable;
     rightButton.disabled = !enable;
@@ -3112,11 +3224,11 @@
     centerBLoad.style.width = "100%";
   }
 
-  function updateLoadingBar(time) {
+  /* function updateLoadingBar(time) {
     if (actType == "top") {
       topCooldownTime--;
       topBLoad.style.width =
-        /* (topCooldownTime / (time / 1000)) * 100 + */ "0%";
+        "0%";
       if (topCooldownTime <= 0) {
         clearInterval(intervalId);
         enableBars(true);
@@ -3124,7 +3236,7 @@
     } else if (actType == "right") {
       rightCooldownTime--;
       rightBLoad.style.width =
-        /* (rightCooldownTime / (time / 1000)) * 100 + */ "0%";
+        "0%";
       if (rightCooldownTime <= 0) {
         clearInterval(intervalId);
         enableBars(true);
@@ -3132,7 +3244,7 @@
     } else if (actType == "bottom") {
       bottomCooldownTime--;
       bottomBLoad.style.width =
-        /* (bottomCooldownTime / (time / 1000)) * 100 + */ "0%";
+        "0%";
       if (bottomCooldownTime <= 0) {
         clearInterval(intervalId);
         enableBars(true);
@@ -3140,7 +3252,7 @@
     } else if (actType == "left") {
       leftCooldownTime--;
       leftBLoad.style.width =
-        /* (leftCooldownTime / (time / 1000)) * 100 + */ "0%";
+        "0%";
       if (leftCooldownTime <= 0) {
         clearInterval(intervalId);
         enableBars(true);
@@ -3148,17 +3260,17 @@
     } else if (actType == "center") {
       centerCooldownTime--;
       centerBLoad.style.width =
-        /* (centerCooldownTime / (time / 1000)) * 100 + */ "0%";
+        "0%";
       if (centerCooldownTime <= 0) {
         clearInterval(intervalId);
         enableBars(true);
       }
     }
-  }
+  } */
 
-  function doBlock() {
-    blocking = !blocking;
-    enableBars(!blocking, -1);
+  function setBlock(block) {
+    blocking = block;
+    //enableBars(!blocking, -1);
     blockText.innerHTML = blocking ? "🛡️" : "⚔️";
   }
 

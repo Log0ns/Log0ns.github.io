@@ -5,6 +5,90 @@
     <script>
       var baseEnvJson = {};
 
+      var activeDungeon = -1;
+      var saveWorldCoords = [];
+
+      // TODO add dungeons
+      var dungeonInfo = {
+        grassDungeon: {
+          id: 0,
+          reqItem: "key",
+          worldCoord: [101, 100],
+          size: 15,
+          danger: 2,
+          bossChance: 60,
+          boss: {
+            name: "BossSpider",
+            symbol: "🕷🕷🕷",
+            color: "#8B4513",
+            health: 10,
+          },
+          rewardItem: "Potion",
+        },
+      };
+
+      var grassDungeon = {
+        environment: {
+          name: "Grass Dungeon",
+          danger: 8,
+          enemyCount: 6,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Mossy Ground",
+          symbol: "▲",
+          backgroundColor: "#006400",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Vines",
+            symbol: "≋",
+            backgroundColor: "#228B22",
+            color: "#FF0000",
+            rarity: 0.2,
+            smoothness: 50,
+          },
+          {
+            name: "Mushrooms",
+            symbol: "♠",
+            backgroundColor: "#A0522D",
+            color: "#FFD700",
+            rarity: 0.6,
+            smoothness: 30,
+          },
+          {
+            name: "Spider Webs",
+            symbol: "☠",
+            backgroundColor: "#D3D3D3",
+            color: "#FF8C00",
+            rarity: 0.9,
+            smoothness: 10,
+          },
+        ],
+        creature_types: [
+          {
+            name: "GiantSpider",
+            symbol: "🕷",
+            color: "#8B4513",
+            health: 3,
+          },
+          {
+            name: "VenomousSnake",
+            symbol: "🐍",
+            color: "#32CD32",
+            health: 3,
+          },
+          {
+            name: "GrassGolem",
+            symbol: "🌿",
+            color: "#7CFC00",
+            health: 3,
+          },
+        ],
+      };
+
       var envJsons = [];
 
       var lavaCanyon = {
@@ -52,16 +136,19 @@
             name: "Dragon",
             symbol: "🐉",
             color: "#ffff99",
+            health: 3,
           },
           {
             name: "Troll",
             symbol: "👾", // TODO
             color: "#ff5050",
+            health: 3,
           },
           {
             name: "Golem",
             symbol: "💎",
             color: "#ccff99",
+            health: 3,
           },
         ],
       };
@@ -111,16 +198,19 @@
             name: "Seraph",
             symbol: "👼",
             color: "#FFD700",
+            health: 3,
           },
           {
-            name: "Celestial Dragon",
+            name: "CelestialDragon",
             symbol: "🐉",
             color: "#00CED1",
+            health: 3,
           },
           {
-            name: "Astral Unicorn",
+            name: "AstralUnicorn",
             symbol: "🦄",
             color: "#FF69B4",
+            health: 3,
           },
         ],
       };
@@ -170,16 +260,19 @@
             name: "Fairy",
             symbol: "🧚",
             color: "#FF69B4",
+            health: 3,
           },
           {
             name: "Elf",
             symbol: "🧝",
             color: "#008080",
+            health: 3,
           },
           {
             name: "Goblin",
             symbol: "👺",
             color: "#FFA500",
+            health: 3,
           },
         ],
       };
@@ -226,19 +319,22 @@
         ],
         creature_types: [
           {
-            name: "Fire Elemental",
+            name: "FireElemental",
             symbol: "🜄",
             color: "#FF4500",
+            health: 3,
           },
           {
-            name: "Magma Beast",
+            name: "MagmaBeast",
             symbol: "🜁",
             color: "#FF8C00",
+            health: 3,
           },
           {
-            name: "Lava Golem",
+            name: "LavaGolem",
             symbol: "🜃",
             color: "#FF0000",
+            health: 3,
           },
         ],
       };
@@ -285,19 +381,22 @@
         ],
         creature_types: [
           {
-            name: "Crystal Golem",
+            name: "CrystalGolem",
             symbol: "💎",
             color: "#00BFFF",
+            health: 3,
           },
           {
-            name: "Luminous Serpent",
+            name: "LuminousSerpent",
             symbol: "🐍",
             color: "#00FF00",
+            health: 3,
           },
           {
-            name: "Spectral Spider",
+            name: "SpectralSpider",
             symbol: "🕷",
             color: "#9400D3",
+            health: 3,
           },
         ],
       };
@@ -347,16 +446,19 @@
             name: "Ghost",
             symbol: "👻",
             color: "#F8F8FF",
+            health: 3,
           },
           {
             name: "Werewolf",
             symbol: "🐺",
             color: "#483D8B",
+            health: 3,
           },
           {
             name: "Wisp",
             symbol: "🧚",
             color: "#FFD700",
+            health: 3,
           },
         ],
       };
@@ -406,16 +508,19 @@
             name: "Elk",
             symbol: "🦌",
             color: "#8B4513",
+            health: 3,
           },
           {
             name: "Owl",
             symbol: "🦉",
             color: "#663399",
+            health: 3,
           },
           {
             name: "Fairy",
             symbol: "🧚‍♀️",
             color: "#FF69B4",
+            health: 3,
           },
         ],
       };
@@ -465,16 +570,19 @@
             name: "Scorpion",
             symbol: "🦂",
             color: "#8B4513",
+            health: 3,
           },
           {
             name: "Vulture",
             symbol: "🦅",
             color: "#800000",
+            health: 3,
           },
           {
             name: "Camel",
             symbol: "🐫",
             color: "#CD853F",
+            health: 3,
           },
         ],
       };
@@ -521,19 +629,22 @@
         ],
         creature_types: [
           {
-            name: "Snow Yeti",
+            name: "SnowYeti",
             symbol: "🗿",
             color: "#E0FFFF",
+            health: 3,
           },
           {
-            name: "Ice Dragon",
+            name: "IceDragon",
             symbol: "🐉",
             color: "#B0E0E6",
+            health: 3,
           },
           {
-            name: "Frost Wraith",
+            name: "FrostWraith",
             symbol: "👻",
             color: "#ADD8E6",
+            health: 3,
           },
         ],
       };
@@ -583,16 +694,19 @@
             name: "Owl",
             symbol: "🦉",
             color: "#704214",
+            health: 3,
           },
           {
             name: "Fox",
             symbol: "🦊",
             color: "#FF4500",
+            health: 3,
           },
           {
             name: "Squirrel",
             symbol: "🐿️",
             color: "#A0522D",
+            health: 3,
           },
         ],
       };
@@ -642,16 +756,19 @@
             name: "Glowbug",
             symbol: "🐞",
             color: "#FFD700",
+            health: 3,
           },
           {
             name: "Will-o'-the-Wisp",
             symbol: "🔥",
             color: "#FF4500",
+            health: 3,
           },
           {
             name: "Spirit Fox",
             symbol: "🦊",
             color: "#00FF00",
+            health: 3,
           },
         ],
       };
@@ -698,19 +815,22 @@
         ],
         creature_types: [
           {
-            name: "Sky Serpent",
+            name: "SkySerpent",
             symbol: "🐉",
             color: "#9932CC",
+            health: 3,
           },
           {
-            name: "Winged Lion",
+            name: "WingedLion",
             symbol: "🦁",
             color: "#FFA500",
+            health: 3,
           },
           {
-            name: "Cloud Elemental",
+            name: "CloudElemental",
             symbol: "🌩️",
             color: "#FFFFFF",
+            health: 3,
           },
         ],
       };
@@ -760,16 +880,19 @@
             name: "Eagle",
             symbol: "🦅",
             color: "#FFD700",
+            health: 3,
           },
           {
-            name: "Mountain Lion",
+            name: "MountainLion",
             symbol: "🦁",
             color: "#FF8C00",
+            health: 3,
           },
           {
             name: "Bobcat",
             symbol: "😺",
             color: "#A52A2A",
+            health: 3,
           },
         ],
       };
@@ -819,16 +942,19 @@
             name: "Wisp",
             symbol: "🌟",
             color: "#FFD700",
+            health: 3,
           },
           {
-            name: "Shadow Beast",
+            name: "ShadowBeast",
             symbol: "👻",
             color: "#7B68EE",
+            health: 3,
           },
           {
-            name: "Crystal Elemental",
+            name: "CrystalElemental",
             symbol: "💎",
             color: "#00CED1",
+            health: 3,
           },
         ],
       };
@@ -875,19 +1001,22 @@
         ],
         creature_types: [
           {
-            name: "Ember Elemental",
+            name: "EmberElemental",
             symbol: "🔥",
             color: "#FF4500",
+            health: 3,
           },
           {
-            name: "Earth Golem",
+            name: "EarthGolem",
             symbol: "🗿",
             color: "#8B4513",
+            health: 3,
           },
           {
-            name: "Abyssal Shadow",
+            name: "AbyssalShadow",
             symbol: "🌑",
             color: "#000000",
+            health: 3,
           },
         ],
       };
@@ -937,16 +1066,19 @@
             name: "Shark",
             symbol: "🦈",
             color: "#0000CD",
+            health: 3,
           },
           {
             name: "Octopus",
             symbol: "🐙",
             color: "#8A2BE2",
+            health: 3,
           },
           {
             name: "Mermaid",
             symbol: "🧜‍♀️",
             color: "#00BFFF",
+            health: 3,
           },
         ],
       };
@@ -996,16 +1128,19 @@
             name: "Guardian",
             symbol: "🗿",
             color: "#808080",
+            health: 3,
           },
           {
             name: "Spirit",
             symbol: "👻",
             color: "#7B68EE",
+            health: 3,
           },
           {
             name: "Shadow",
             symbol: "🌑",
             color: "#696969",
+            health: 3,
           },
         ],
       };
@@ -1052,19 +1187,22 @@
         ],
         creature_types: [
           {
-            name: "Sand Serpent",
+            name: "SandSerpent",
             symbol: "🐍",
             color: "#CD853F",
+            health: 3,
           },
           {
             name: "Scorpion",
             symbol: "🦂",
             color: "#800000",
+            health: 3,
           },
           {
-            name: "Desert Rat",
+            name: "DesertRat",
             symbol: "🐀",
             color: "#DAA520",
+            health: 3,
           },
         ],
       };
@@ -1111,19 +1249,22 @@
         ],
         creature_types: [
           {
-            name: "Giant Squid",
+            name: "GiantSquid",
             symbol: "🦑",
             color: "#FF4500",
+            health: 3,
           },
           {
-            name: "Ghost Shark",
+            name: "GhostShark",
             symbol: "👻",
             color: "#FFD700",
+            health: 3,
           },
           {
-            name: "Deep Sea Angler",
+            name: "DeepSeaCreature",
             symbol: "🎣",
             color: "#00CED1",
+            health: 3,
           },
         ],
       };
@@ -1133,7 +1274,7 @@
         fists: {
           type: "weapon",
           range: 0,
-          damage: 1,
+          damage: 5, // TODO
           health: 0,
           attackSpeed: 1,
           statEff: { stat: "none", amount: 0 },
@@ -1271,8 +1412,11 @@
         if (event.key === "ArrowRight") {
           arrowRight();
         }
-        if (event.key === "s") {
-          arrowDown();
+        if (event.key === "q") {
+          arrowUpLeft();
+        }
+        if (event.key === "e") {
+          arrowUpRight();
         }
         if (event.key === "w") {
           arrowUp();
@@ -1280,8 +1424,17 @@
         if (event.key === "a") {
           arrowLeft();
         }
+        if (event.key === "s") {
+          arrowDown();
+        }
         if (event.key === "d") {
           arrowRight();
+        }
+        if (event.key === "z") {
+          arrowDownLeft();
+        }
+        if (event.key === "c") {
+          arrowDownRight();
         }
         if (event.key === "Enter") {
           enter();
@@ -1294,8 +1447,18 @@
       function arrowDown() {
         bottomCooldown(500);
       }
+      function arrowDownLeft() {}
+      function arrowDownRight() {
+        clearSel();
+      }
       function arrowUp() {
         topCooldown(500);
+      }
+      function arrowUpLeft() {
+        useItem(equippedItem);
+      }
+      function arrowUpRight() {
+        useItem(equippedPotion);
       }
       function arrowLeft() {
         leftCooldown(500);
@@ -1312,6 +1475,15 @@
       var worldCoords = [0, 0];
 
       function getCurEnvJsonId() {
+        if (activeDungeon >= 0) {
+          if (activeDungeon == 0) {
+            return 19;
+          } else {
+            return 0;
+          }
+          // TODO add dungeons
+        }
+
         if (
           worldCoords[0] < (worldMapSize / 5) * 1 &&
           worldCoords[1] < (worldMapSize / 5) * 1
@@ -1569,24 +1741,55 @@
           symbol: ">",
           canWalk: true,
         },
+        // TODO add dungeons
+        {
+          name: "grassDungeon",
+          color: "#ffffff",
+          backgroundColor: "#bfbfbf",
+          symbol: "D",
+          canWalk: true,
+        },
       ];
 
       var specialTiles = [];
       function updateSpecialTiles() {
-        specialTiles = [
-          { i: 0, j: Math.round(worldSize / 2), type: "Up" },
-          {
-            i: worldSize + 1,
-            j: Math.round(worldSize / 2),
-            type: "Down",
-          },
-          { i: Math.round(worldSize / 2), j: 0, type: "Left" },
-          {
-            i: Math.round(worldSize / 2),
-            j: worldSize + 1,
-            type: "Right",
-          },
-        ];
+        var d = curDungeonCoord();
+        if (d != "") {
+          specialTiles = [
+            { i: 0, j: Math.round(worldSize / 2), type: "Up" },
+            {
+              i: worldSize + 1,
+              j: Math.round(worldSize / 2),
+              type: "Down",
+            },
+            { i: Math.round(worldSize / 2), j: 0, type: "Left" },
+            {
+              i: Math.round(worldSize / 2),
+              j: worldSize + 1,
+              type: "Right",
+            },
+            {
+              i: Math.round(worldSize / 2),
+              j: Math.round(worldSize / 2),
+              type: d,
+            },
+          ];
+        } else {
+          specialTiles = [
+            { i: 0, j: Math.round(worldSize / 2), type: "Up" },
+            {
+              i: worldSize + 1,
+              j: Math.round(worldSize / 2),
+              type: "Down",
+            },
+            { i: Math.round(worldSize / 2), j: 0, type: "Left" },
+            {
+              i: Math.round(worldSize / 2),
+              j: worldSize + 1,
+              type: "Right",
+            },
+          ];
+        }
       }
 
       var movingCreatures = [];
@@ -1618,6 +1821,7 @@
           whisperingSands,
           underwaterCity,
           darkAbyss,
+          grassDungeon,
         ];
         worldCoords = [worldMapSize / 2, worldMapSize / 2];
 
@@ -1685,12 +1889,19 @@
         } */
 
         document.getElementById("worldDiv").innerHTML =
-          envJsons[getCurEnvJsonId()].environment.name +
-          "<br>(X: " +
-          worldCoords[0] +
-          ", Y: " +
-          worldCoords[1] +
-          ")";
+          activeDungeon < 0
+            ? envJsons[getCurEnvJsonId()].environment.name +
+              "<br>(X: " +
+              worldCoords[0] +
+              ", Y: " +
+              worldCoords[1] +
+              ")"
+            : getCurDungeon() +
+              "<br>(X: " +
+              (worldCoords[0] - saveWorldCoords[0]) +
+              ", Y: " +
+              (worldCoords[1] - saveWorldCoords[1]) +
+              ")";
 
         updateStats();
         enableBars(true, 1000);
@@ -1758,6 +1969,14 @@
       }
 
       function createCreatures() {
+        if (activeDungeon >= 0) {
+          var ran = randomRange(1, 100);
+          if (ran <= dungeonInfo[getCurDungeon()].bossChance) {
+            spawnBoss();
+            return;
+          }
+        }
+
         eC = randomRange(0, baseEnvJson.environment.enemyCount);
         for (h = 0; h < eC; h++) {
           createCreature(
@@ -1896,6 +2115,15 @@
         return type.name;
       }
 
+      function getPlayerTile(creatureName) {
+        for (i = 0; i < worldSize + 2; i++) {
+          for (j = 0; j < worldSize + 2; j++) {
+            if (worldData[i][j].creature == "player1") {
+              return worldData[i][j];
+            }
+          }
+        }
+      }
       function getCreatureTile(creature) {
         for (i = 0; i < worldSize + 2; i++) {
           for (j = 0; j < worldSize + 2; j++) {
@@ -1959,8 +2187,10 @@
         } else {
           div.innerHTML =
             "<p " +
-            'data-health="3" ' +
-            "onclick=clickCreature('" +
+            "data-health=" +
+            getCreatureByName(creatureName).health *
+              baseEnvJson.environment.danger +
+            " onclick=clickCreature('" +
             creatureName +
             "','" +
             numCreatures.toString() +
@@ -2000,6 +2230,13 @@
         creatureJSON = {};
       }
       function getCreatureByName(name) {
+        var dI = dungeonInfo[getCurDungeon()];
+        if (dI) {
+          if (dI.boss.name == name) {
+            return dI.boss;
+          }
+        }
+
         for (const creature of baseEnvJson.creature_types) {
           if (creature.name == name) {
             return creature;
@@ -2111,6 +2348,12 @@
             } else {
               targetElement = targetOrTile;
             }
+          }
+
+          // stop creature from moving to corner when loses target
+          if (targetElement.offsetTop == 0) {
+            var ranTile = findRandomTile();
+            targetElement = document.getElementById(ranTile.id);
           }
 
           tilePosY = targetElement.offsetTop - 14;
@@ -2666,6 +2909,7 @@
       }
       function useItem(useItem) {
         if (!useItem || useItem == "") {
+          addItem("key", 1); // TODO
           return;
         }
 
@@ -2689,7 +2933,7 @@
             if (iObj.type == "potion") {
               removeItem(useItem, 1);
             } else if (iObj.type == "item") {
-              // TODO enter dungeon
+              enterDungeon(useItem);
             }
 
             var playerElement = document.getElementById("player1");
@@ -2713,6 +2957,62 @@
         }
 
         updateStats();
+      }
+
+      function getCurDungeon() {
+        if (activeDungeon < 0) {
+          return "";
+        }
+
+        for (const key in dungeonInfo) {
+          if (dungeonInfo[key].id == activeDungeon) {
+            return key;
+          }
+        }
+        return "";
+      }
+      function curDungeonCoord() {
+        for (const key in dungeonInfo) {
+          if (
+            dungeonInfo[key].worldCoord[0] == worldCoords[0] &&
+            dungeonInfo[key].worldCoord[1] == worldCoords[1]
+          ) {
+            return key;
+          }
+        }
+        return "";
+      }
+      function enterDungeon(keyItem) {
+        if (activeDungeon >= 0) {
+          leaveDungeon();
+          return;
+        }
+
+        var dungeonJson = dungeonInfo[getPlayerTile().type.name];
+        if (!dungeonJson) {
+          return;
+        }
+
+        activeDungeon = dungeonJson.id;
+        saveWorldCoords = worldCoords;
+        recreateWorldData("none");
+      }
+      function leaveDungeon() {
+        activeDungeon = -1;
+        worldCoords = saveWorldCoords;
+        recreateWorldData("none");
+      }
+      function spawnBoss() {
+        var cD = dungeonInfo[getCurDungeon()];
+        if (!cD) {
+          return;
+        }
+
+        createCreature(
+          cD.boss.name,
+          Math.round(randomRange(0, worldSize)),
+          Math.round(randomRange(0, worldSize))
+        );
       }
 
       /*function save() {
@@ -2944,6 +3244,18 @@
               <div id="topBLoad" class="loading-bar"></div>
             </button>
           </div>
+          <div style="grid-area: topLeft">
+            <button id="topLeftButton" onclick="arrowUpLeft()">
+              <span id="topLeftText" class="button-text">Item</span>
+              <div id="topLeftBLoad" class="loading-bar"></div>
+            </button>
+          </div>
+          <div style="grid-area: topRight">
+            <button id="topRightButton" onclick="arrowUpRight()">
+              <span id="topRightText" class="button-text">Potion</span>
+              <div id="topRightBLoad" class="loading-bar"></div>
+            </button>
+          </div>
           <div style="grid-area: left">
             <button id="leftButton" onclick="arrowLeft()">
               <span id="leftText" class="button-text"></span>
@@ -2966,6 +3278,18 @@
             <button id="bottomButton" onclick="arrowDown()">
               <span id="bottomText" class="button-text"></span>
               <div id="bottomBLoad" class="loading-bar"></div>
+            </button>
+          </div>
+          <div style="grid-area: bottomLeft">
+            <button id="bottomLeftButton" onclick="arrowDownLeft()">
+              <span id="bottomLeftText" class="button-text">TODO</span>
+              <div id="bottomLeftBLoad" class="loading-bar"></div>
+            </button>
+          </div>
+          <div style="grid-area: bottomRight">
+            <button id="bottomRightButton" onclick="arrowDownRight()">
+              <span id="bottomRightText" class="button-text">Clear</span>
+              <div id="bottomRightBLoad" class="loading-bar"></div>
             </button>
           </div>
         </div>
@@ -3022,9 +3346,9 @@
   .panel-container {
     display: grid;
     grid-template-areas:
-      "top top top"
+      "topLeft top topRight"
       "left center right"
-      "bottom bottom bottom";
+      "bottomLeft bottom bottomRight";
     gap: 20px;
     height: 100%;
     justify-items: center;
@@ -3125,17 +3449,15 @@
     // leftBLoad.style.width = "0%";
     // intervalId = setInterval(updateLoadingBar, time);
 
-    if (menuId <= items.length) {
+    if (menuId < items.length) {
       useItem(items[menuId][0]);
     }
   }
   // Right
   function rightCooldown(time) {
     if (selCreature != null) {
-      if (!rightButton.disabled) {
-        console.log(intervalId); // TODO attack delay
-        playerAttack();
-        rightButton.disabled = true;
+      if (rightButton.disabled) {
+        return;
       }
 
       var aS = getStat("attackSpeed", false);
@@ -3156,9 +3478,11 @@
       //rightBLoad.style.width = "0%";
       //intervalId = setInterval(updateLoadingBar, time);
 
+      playerAttack();
+      rightButton.disabled = true;
       intervalId = setInterval(enableRightButton, time);
     } else {
-      if (menuId <= items.length) {
+      if (menuId < items.length) {
         equipItem(items[menuId][0]);
       }
 
@@ -3267,6 +3591,15 @@
       }
     }
   } */
+
+  function clearSel() {
+    if (selCreature) {
+      setSelCreature(selCreature);
+    }
+    if (selTile) {
+      setSelTile(selTile);
+    }
+  }
 
   function setBlock(block) {
     blocking = block;

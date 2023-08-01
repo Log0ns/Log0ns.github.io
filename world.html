@@ -10,13 +10,13 @@
 
       // TODO add dungeons
       var dungeonInfo = {
-        grassDungeon: {
+        Dungeongrass: {
           id: 0,
           reqItem: "key",
           worldCoord: [101, 100],
           size: 15,
           danger: 2,
-          bossChance: 60,
+          bossChance: 10,
           boss: {
             name: "BossSpider",
             symbol: "🕷🕷🕷",
@@ -27,11 +27,11 @@
         },
       };
 
-      var grassDungeon = {
+      var Dungeongrass = {
         environment: {
           name: "Grass Dungeon",
-          danger: 8,
-          enemyCount: 6,
+          danger: 1,
+          enemyCount: 2,
           worldSize: 15,
         },
         floor_tile: {
@@ -94,8 +94,8 @@
       var lavaCanyon = {
         environment: {
           name: "Lava Canyon",
-          danger: 7, // TODO
-          enemyCount: 4,
+          danger: 10,
+          enemyCount: 2,
           worldSize: 15,
         },
         floor_tile: {
@@ -156,7 +156,7 @@
       var celestialRealm = {
         environment: {
           name: "Celestial Realm",
-          danger: 9,
+          danger: 10,
           enemyCount: 6,
           worldSize: 15,
         },
@@ -218,8 +218,8 @@
       var enchantedForest = {
         environment: {
           name: "Enchanted Forest",
-          danger: 6,
-          enemyCount: 5,
+          danger: 8,
+          enemyCount: 3,
           worldSize: 15,
         },
         floor_tile: {
@@ -280,8 +280,8 @@
       var lavaFortress = {
         environment: {
           name: "Lava Fortress",
-          danger: 9,
-          enemyCount: 6,
+          danger: 10,
+          enemyCount: 4,
           worldSize: 15,
         },
         floor_tile: {
@@ -342,8 +342,8 @@
       var crystalCaverns = {
         environment: {
           name: "Crystal Caverns",
-          danger: 9,
-          enemyCount: 6,
+          danger: 6,
+          enemyCount: 3,
           worldSize: 15,
         },
         floor_tile: {
@@ -404,8 +404,8 @@
       var mistyMoorlands = {
         environment: {
           name: "Misty Moorlands",
-          danger: 6,
-          enemyCount: 5,
+          danger: 4,
+          enemyCount: 2,
           worldSize: 15,
         },
         floor_tile: {
@@ -467,7 +467,7 @@
         environment: {
           name: "Whispering Woods",
           danger: 6,
-          enemyCount: 5,
+          enemyCount: 3,
           worldSize: 15,
         },
         floor_tile: {
@@ -528,8 +528,8 @@
       var timelessDesert = {
         environment: {
           name: "Timeless Desert",
-          danger: 6,
-          enemyCount: 5,
+          danger: 8,
+          enemyCount: 1,
           worldSize: 15,
         },
         floor_tile: {
@@ -590,8 +590,8 @@
       var frozenTundra = {
         environment: {
           name: "Frozen Tundra",
-          danger: 9,
-          enemyCount: 6,
+          danger: 3,
+          enemyCount: 2,
           worldSize: 15,
         },
         floor_tile: {
@@ -652,8 +652,8 @@
       var heartland = {
         environment: {
           name: "Heartland",
-          danger: 5,
-          enemyCount: 3,
+          danger: 1,
+          enemyCount: 1,
           worldSize: 15,
         },
         floor_tile: {
@@ -714,8 +714,8 @@
       var luminousGlades = {
         environment: {
           name: "Luminous Glades",
-          danger: 6,
-          enemyCount: 5,
+          danger: 2,
+          enemyCount: 2,
           worldSize: 15,
         },
         floor_tile: {
@@ -776,8 +776,8 @@
       var floatingIslands = {
         environment: {
           name: "Floating Islands",
-          danger: 8,
-          enemyCount: 6,
+          danger: 5,
+          enemyCount: 3,
           worldSize: 15,
         },
         floor_tile: {
@@ -838,8 +838,8 @@
       var rockyHighlands = {
         environment: {
           name: "Rocky Highlands",
-          danger: 8,
-          enemyCount: 5,
+          danger: 6,
+          enemyCount: 3,
           worldSize: 15,
         },
         floor_tile: {
@@ -900,8 +900,8 @@
       var mysticCaverns = {
         environment: {
           name: "Mystic Cavern",
-          danger: 6,
-          enemyCount: 5,
+          danger: 4,
+          enemyCount: 4,
           worldSize: 15,
         },
         floor_tile: {
@@ -962,8 +962,8 @@
       var elementalWasteland = {
         environment: {
           name: "Elemental Wasteland",
-          danger: 9,
-          enemyCount: 6,
+          danger: 7,
+          enemyCount: 3,
           worldSize: 15,
         },
         floor_tile: {
@@ -1024,7 +1024,7 @@
       var underwaterCity = {
         environment: {
           name: "Underwater City",
-          danger: 9,
+          danger: 10,
           enemyCount: 6,
           worldSize: 15,
         },
@@ -1086,8 +1086,8 @@
       var ancientRuins = {
         environment: {
           name: "Ancient Ruins",
-          danger: 9,
-          enemyCount: 6,
+          danger: 7,
+          enemyCount: 3,
           worldSize: 15,
         },
         floor_tile: {
@@ -1148,8 +1148,8 @@
       var whisperingSands = {
         environment: {
           name: "Whispering Sands",
-          danger: 6,
-          enemyCount: 5,
+          danger: 10,
+          enemyCount: 4,
           worldSize: 15,
         },
         floor_tile: {
@@ -1210,8 +1210,8 @@
       var darkAbyss = {
         environment: {
           name: "Dark Abyss",
-          danger: 9,
-          enemyCount: 6,
+          danger: 10,
+          enemyCount: 4,
           worldSize: 15,
         },
         floor_tile: {
@@ -1664,8 +1664,8 @@
       }
 
       function getCreatureDrop(creature) {
-        if (creature.id.startsWith("Seraph")) {
-          // TODO special drops
+        if (creature.id.startsWith("BossSpider")) {
+          return "grass";
         } else {
           return getItemDrop();
         }
@@ -1743,9 +1743,9 @@
         },
         // TODO add dungeons
         {
-          name: "grassDungeon",
-          color: "#ffffff",
-          backgroundColor: "#bfbfbf",
+          name: "Dungeongrass",
+          color: "#051405",
+          backgroundColor: "#33cc33",
           symbol: "D",
           canWalk: true,
         },
@@ -1769,8 +1769,8 @@
               type: "Right",
             },
             {
-              i: Math.round(worldSize / 2),
-              j: Math.round(worldSize / 2),
+              i: randomRange(1, worldSize),
+              j: randomRange(1, worldSize),
               type: d,
             },
           ];
@@ -1821,7 +1821,7 @@
           whisperingSands,
           underwaterCity,
           darkAbyss,
-          grassDungeon,
+          Dungeongrass,
         ];
         worldCoords = [worldMapSize / 2, worldMapSize / 2];
 
@@ -1889,7 +1889,7 @@
         } */
 
         document.getElementById("worldDiv").innerHTML =
-          activeDungeon < 0
+          (activeDungeon < 0
             ? envJsons[getCurEnvJsonId()].environment.name +
               "<br>(X: " +
               worldCoords[0] +
@@ -1901,7 +1901,9 @@
               (worldCoords[0] - saveWorldCoords[0]) +
               ", Y: " +
               (worldCoords[1] - saveWorldCoords[1]) +
-              ")";
+              ")") +
+          "<br><br>" +
+          worldMapString();
 
         updateStats();
         enableBars(true, 1000);
@@ -1959,6 +1961,157 @@
 
         //updateStats();
         //enableBars(true, 1000);
+      }
+
+      function worldMapString() {
+        var wCID = getCurEnvJsonId();
+        if (wCID == 1) {
+          return (
+            "(CR) - ? - EF - ? - LF" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>TD - FT - HL - LG - FI" +
+            "<br>EW - RH - ? - MC - AR" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 2) {
+          return (
+            "CR - ? - (EF) - ? - LF" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>TD - FT - HL - LG - FI" +
+            "<br>EW - RH - ? - MC - AR" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 3) {
+          return (
+            "CR - ? - EF - ? - (LF)" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>TD - FT - HL - LG - FI" +
+            "<br>EW - RH - ? - MC - AR" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 4) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>(CC) - ? - MM - ? - WW" +
+            "<br>TD - FT - HL - LG - FI" +
+            "<br>EW - RH - ? - MC - AR" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 5) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>CC - ? - (MM) - ? - WW" +
+            "<br>TD - FT - HL - LG - FI" +
+            "<br>EW - RH - ? - MC - AR" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 6) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>CC - ? - MM - ? - (WW)" +
+            "<br>TD - FT - HL - LG - FI" +
+            "<br>EW - RH - ? - MC - AR" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 7) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>(TD) - FT - HL - LG - FI" +
+            "<br>EW - RH - ? - MC - AR" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 8) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>TD - (FT) - HL - LG - FI" +
+            "<br>EW - RH - ? - MC - AR" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 9) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>TD - FT - (HL) - LG - FI" +
+            "<br>EW - RH - ? - MC - AR" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 10) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>TD - FT - HL - (LG) - FI" +
+            "<br>EW - RH - ? - MC - AR" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 11) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>TD - FT - HL - LG - (FI)" +
+            "<br>EW - RH - ? - MC - AR" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 12) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>TD - FT - HL - LG - FI" +
+            "<br>(EW) - RH - ? - MC - AR" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 13) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>TD - FT - HL - LG - FI" +
+            "<br>EW - (RH) - ? - MC - AR" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 14) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>TD - FT - HL - LG - FI" +
+            "<br>EW - RH - ? - (MC) - AR" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 15) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>TD - FT - HL - LG - FI" +
+            "<br>EW - RH - ? - MC - (AR)" +
+            "<br>WS - ? - UC - ? - DA"
+          );
+        } else if (wCID == 16) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>TD - FT - HL - LG - FI" +
+            "<br>EW - RH - ? - MC - AR" +
+            "<br>(WS) - ? - UC - ? - DA"
+          );
+        } else if (wCID == 17) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>TD - FT - HL - LG - FI" +
+            "<br>EW - RH - ? - MC - AR" +
+            "<br>WS - ? - (UC) - ? - DA"
+          );
+        } else if (wCID == 18) {
+          return (
+            "CR - ? - EF - ? - LF" +
+            "<br>CC - ? - MM - ? - WW" +
+            "<br>TD - FT - HL - LG - FI" +
+            "<br>EW - RH - ? - MC - AR" +
+            "<br>WS - ? - UC - ? - (DA)"
+          );
+        } else {
+          return "? ? ? ? ?<br>? ? ? ? ?<br>? ? ? ? ?<br>? ? ? ? ?<br>? ? ? ? ?";
+        }
       }
 
       function secondsSinceCreate() {
@@ -2523,7 +2676,7 @@
                 getDistanceBetweenElementAndPoint(targetElement, targetCoords) <
                 20
               ) {
-                playerDamage(1);
+                playerDamage(baseEnvJson.environment.danger);
               }
             }, 500);
           } else {
@@ -2780,6 +2933,8 @@
       function playerDeath() {
         health = 10 + getStat("health", false);
 
+        leaveDungeon();
+
         recreateWorldData("none");
       }
 
@@ -2983,13 +3138,17 @@
         return "";
       }
       function enterDungeon(keyItem) {
+        var dungeonJson = dungeonInfo[getPlayerTile().type.name];
+        if (!dungeonJson) {
+          return;
+        }
+
         if (activeDungeon >= 0) {
           leaveDungeon();
           return;
         }
 
-        var dungeonJson = dungeonInfo[getPlayerTile().type.name];
-        if (!dungeonJson) {
+        if (dungeonJson.reqItem != keyItem) {
           return;
         }
 
@@ -2998,6 +3157,10 @@
         recreateWorldData("none");
       }
       function leaveDungeon() {
+        if (activeDungeon < 0) {
+          return;
+        }
+
         activeDungeon = -1;
         worldCoords = saveWorldCoords;
         recreateWorldData("none");
@@ -3222,7 +3385,7 @@
     <div>
       <table class="table-container" id="world"></table>
       <p id="creatures"></p>
-      <div id="worldDiv" class="stats-text"></div>
+      <div id="worldDiv" class="stats-text" style="white-space: pre"></div>
     </div>
 
     <div>

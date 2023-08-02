@@ -10,8 +10,22 @@
 
       // TODO add dungeons
       var dungeonInfo = {
-        Dungeongrass: {
+        Town: {
           id: 0,
+          reqItem: "",
+          worldCoord: [100, 100],
+          size: 15,
+          danger: 0,
+          bossChance: 10,
+          boss: {
+            name: "King",
+            symbol: "👑",
+            color: "#8B4513",
+            health: 100,
+          },
+        },
+        Dungeongrass: {
+          id: 1,
           reqItem: "key",
           worldCoord: [101, 100],
           size: 15,
@@ -23,10 +37,70 @@
             color: "#8B4513",
             health: 10,
           },
-          rewardItem: "Potion",
         },
       };
 
+      var Town = {
+        environment: {
+          name: "Town",
+          danger: 0,
+          enemyCount: 6,
+          worldSize: 15,
+        },
+        floor_tile: {
+          name: "Cobblestone",
+          symbol: "■",
+          backgroundColor: "#808080",
+          color: "#FFFFFF",
+          canWalk: true,
+        },
+        prop_types: [
+          {
+            name: "Market Stall",
+            symbol: "▣",
+            backgroundColor: "#FFD700",
+            color: "#964B00",
+            rarity: 0.5,
+            smoothness: 25,
+          },
+          {
+            name: "Tower",
+            symbol: "▲",
+            backgroundColor: "#800080",
+            color: "#FFD700",
+            rarity: 0.93,
+            smoothness: 30,
+          },
+          {
+            name: "Fountain",
+            symbol: "♧",
+            backgroundColor: "#00CED1",
+            color: "#FFFFFF",
+            rarity: 0.98,
+            smoothness: 20,
+          },
+        ],
+        creature_types: [
+          {
+            name: "Knight",
+            symbol: "🛡️",
+            color: "#C0C0C0",
+            health: 20,
+          },
+          {
+            name: "Wizard",
+            symbol: "🧙",
+            color: "#551A8B",
+            health: 20,
+          },
+          {
+            name: "Guard",
+            symbol: "🗡️",
+            color: "#800000",
+            health: 20,
+          },
+        ],
+      };
       var Dungeongrass = {
         environment: {
           name: "Grass Dungeon",
@@ -51,20 +125,21 @@
             smoothness: 50,
           },
           {
-            name: "Mushrooms",
-            symbol: "♠",
-            backgroundColor: "#A0522D",
-            color: "#FFD700",
-            rarity: 0.6,
-            smoothness: 30,
-          },
-          {
             name: "Spider Webs",
             symbol: "☠",
             backgroundColor: "#D3D3D3",
             color: "#FF8C00",
             rarity: 0.9,
             smoothness: 10,
+          },
+          {
+            name: "Mushrooms",
+            symbol: "♠",
+            backgroundColor: "#A0522D",
+            color: "#FFD700",
+            rarity: 0.6,
+            smoothness: 30,
+            isHerb: true,
           },
         ],
         creature_types: [
@@ -113,6 +188,7 @@
             color: "#FFFF00",
             rarity: 0.5,
             smoothness: 10,
+            isWater: true,
           },
           {
             name: "Tree", // individual
@@ -177,20 +253,21 @@
             smoothness: 50,
           },
           {
-            name: "Crystal",
-            symbol: "❖",
-            backgroundColor: "#87CEEB",
-            color: "#FFFFFF",
-            rarity: 0.5,
-            smoothness: 30,
-          },
-          {
             name: "Feathers",
             symbol: "✿",
             backgroundColor: "#FFC0CB",
             color: "#FFFF00",
             rarity: 0.9,
             smoothness: 20,
+          },
+          {
+            name: "Crystal",
+            symbol: "❖",
+            backgroundColor: "#87CEEB",
+            color: "#FFFFFF",
+            rarity: 0.5,
+            smoothness: 30,
+            isOre: true,
           },
         ],
         creature_types: [
@@ -231,12 +308,13 @@
         },
         prop_types: [
           {
-            name: "Glowing Mushrooms",
+            name: "Glowing Water",
             symbol: "≋",
             backgroundColor: "#8A2BE2",
             color: "#FFFF00",
             rarity: 0.6,
             smoothness: 25,
+            isWater: true,
           },
           {
             name: "Ancient Trees",
@@ -253,6 +331,7 @@
             color: "#00FFFF",
             rarity: 0.9,
             smoothness: 15,
+            isOre: true,
           },
         ],
         creature_types: [
@@ -293,12 +372,13 @@
         },
         prop_types: [
           {
-            name: "Lava Pool",
+            name: "Lava",
             symbol: "≋",
             backgroundColor: "#FF4500",
             color: "#FFD700",
             rarity: 0.2,
             smoothness: 50,
+            isWater: true,
           },
           {
             name: "Volcanic Crater",
@@ -369,6 +449,7 @@
             color: "#8A2BE2",
             rarity: 0.9,
             smoothness: 15,
+            isHerb: true,
           },
           {
             name: "Crystal Skulls",
@@ -377,6 +458,7 @@
             color: "#FF1493",
             rarity: 0.999,
             smoothness: 10,
+            isOre: true,
           },
         ],
         creature_types: [
@@ -425,20 +507,21 @@
             smoothness: 25,
           },
           {
-            name: "Dead Tree",
-            symbol: "♠",
-            backgroundColor: "#A0522D",
-            color: "#696969",
-            rarity: 0.9,
-            smoothness: 15,
-          },
-          {
             name: "Ancient Ruins",
             symbol: "☠",
             backgroundColor: "#8B0000",
             color: "#FFD700",
             rarity: 0.99,
             smoothness: 8,
+          },
+          {
+            name: "Dead Tree",
+            symbol: "♠",
+            backgroundColor: "#A0522D",
+            color: "#696969",
+            rarity: 0.9,
+            smoothness: 15,
+            isHerb: true,
           },
         ],
         creature_types: [
@@ -479,20 +562,12 @@
         },
         prop_types: [
           {
-            name: "Tall Grass",
-            symbol: "≋",
+            name: "Whispering Tree",
+            symbol: "♠",
             backgroundColor: "#D8BFD8",
             color: "#228B22",
             rarity: 0.5,
             smoothness: 30,
-          },
-          {
-            name: "Mushrooms",
-            symbol: "♠",
-            backgroundColor: "#FF4500",
-            color: "#FFD700",
-            rarity: 0.7,
-            smoothness: 20,
           },
           {
             name: "Glowing Fireflies",
@@ -501,6 +576,15 @@
             color: "#FF1493",
             rarity: 0.9,
             smoothness: 10,
+          },
+          {
+            name: "Mushrooms",
+            symbol: "♠",
+            backgroundColor: "#FF4500",
+            color: "#FFD700",
+            rarity: 0.7,
+            smoothness: 20,
+            isHerb: true,
           },
         ],
         creature_types: [
@@ -549,20 +633,21 @@
             smoothness: 30,
           },
           {
-            name: "Oasis",
-            symbol: "♠",
-            backgroundColor: "#20B2AA",
-            color: "#00FFFF",
-            rarity: 0.9,
-            smoothness: 10,
-          },
-          {
             name: "Ancient Ruins",
             symbol: "☠",
             backgroundColor: "#D2B48C",
             color: "#A0522D",
             rarity: 0.99,
             smoothness: 5,
+          },
+          {
+            name: "Desert Flower",
+            symbol: "♠",
+            backgroundColor: "#20B2AA",
+            color: "#00FFFF",
+            rarity: 0.9,
+            smoothness: 10,
+            isHerb: true,
           },
         ],
         creature_types: [
@@ -665,12 +750,13 @@
         },
         prop_types: [
           {
-            name: "Mist",
+            name: "Water",
             symbol: "≋",
-            backgroundColor: "#C0C0C0",
-            color: "#DDDDDD",
+            backgroundColor: "#42E5F4",
+            color: "#EEEEFF",
             rarity: 0.4,
             smoothness: 10,
+            isWater: true,
           },
           {
             name: "Tree",
@@ -687,6 +773,7 @@
             color: "#FFD700",
             rarity: 0.95,
             smoothness: 10,
+            isHerb: true,
           },
         ],
         creature_types: [
@@ -727,12 +814,13 @@
         },
         prop_types: [
           {
-            name: "Floating Orbs",
+            name: "Floating Water",
             symbol: "⦿",
             backgroundColor: "#FFD700",
             color: "#800080",
             rarity: 0.4,
             smoothness: 25,
+            isWater: true,
           },
           {
             name: "Luminous Trees",
@@ -749,6 +837,7 @@
             color: "#00FFFF",
             rarity: 0.85,
             smoothness: 15,
+            isHerb: true,
           },
         ],
         creature_types: [
@@ -790,11 +879,20 @@
         prop_types: [
           {
             name: "Floating Rock",
-            symbol: "≋",
+            symbol: "⦿",
             backgroundColor: "#A9A9A9",
             color: "#808080",
             rarity: 0.3,
             smoothness: 30,
+          },
+          {
+            name: "Waterfall",
+            symbol: "≋",
+            backgroundColor: "#1E90FF",
+            color: "#ADD8E6",
+            rarity: 0.9,
+            smoothness: 15,
+            isWater: true,
           },
           {
             name: "Glowing Crystal",
@@ -803,14 +901,7 @@
             color: "#FFD700",
             rarity: 0.2,
             smoothness: 40,
-          },
-          {
-            name: "Waterfall",
-            symbol: "☂",
-            backgroundColor: "#1E90FF",
-            color: "#ADD8E6",
-            rarity: 0.9,
-            smoothness: 15,
+            isOre: true,
           },
         ],
         creature_types: [
@@ -851,14 +942,6 @@
         },
         prop_types: [
           {
-            name: "Boulders",
-            symbol: "≋",
-            backgroundColor: "#808080",
-            color: "#FFA500",
-            rarity: 0.3,
-            smoothness: 40,
-          },
-          {
             name: "Pine Trees",
             symbol: "♠",
             backgroundColor: "#006400",
@@ -867,12 +950,21 @@
             smoothness: 30,
           },
           {
-            name: "Mountain Goats",
-            symbol: "🐐",
+            name: "Brush",
+            symbol: "≋",
             backgroundColor: "#F0E68C",
             color: "#8B4513",
             rarity: 0.9,
             smoothness: 15,
+          },
+          {
+            name: "Boulder",
+            symbol: "⦿",
+            backgroundColor: "#808080",
+            color: "#FFA500",
+            rarity: 0.3,
+            smoothness: 40,
+            isOre: true,
           },
         ],
         creature_types: [
@@ -913,12 +1005,13 @@
         },
         prop_types: [
           {
-            name: "Glowing Crystals",
+            name: "Glowing Water",
             symbol: "≋",
             backgroundColor: "#00FFFF",
             color: "#FFFFFF",
             rarity: 0.5,
             smoothness: 30,
+            isWater: true,
           },
           {
             name: "Ancient Runes",
@@ -975,12 +1068,13 @@
         },
         prop_types: [
           {
-            name: "Burning Cracks",
+            name: "Burning Water",
             symbol: "≋",
             backgroundColor: "#FF4500",
             color: "#FFD700",
             rarity: 0.2,
             smoothness: 35,
+            isWater: true,
           },
           {
             name: "Twisted Trees",
@@ -1037,12 +1131,13 @@
         },
         prop_types: [
           {
-            name: "Coral Reef",
+            name: "Dark Water",
             symbol: "≋",
             backgroundColor: "#FF4500",
             color: "#FFD700",
             rarity: 0.2,
             smoothness: 40,
+            isWater: true,
           },
           {
             name: "Kelp Forest",
@@ -1051,6 +1146,7 @@
             color: "#00FF00",
             rarity: 0.6,
             smoothness: 30,
+            isHerb: true,
           },
           {
             name: "Sunken Ship",
@@ -1107,20 +1203,21 @@
             smoothness: 45,
           },
           {
-            name: "Ancient Vines",
-            symbol: "∞",
-            backgroundColor: "#317F43",
-            color: "#7FFF00",
-            rarity: 0.4,
-            smoothness: 35,
-          },
-          {
             name: "Broken Statues",
             symbol: "☥",
             backgroundColor: "#6D6E5A",
             color: "#DAA520",
             rarity: 0.9,
             smoothness: 20,
+          },
+          {
+            name: "Ancient Vines",
+            symbol: "∞",
+            backgroundColor: "#317F43",
+            color: "#7FFF00",
+            rarity: 0.4,
+            smoothness: 35,
+            isHerb: true,
           },
         ],
         creature_types: [
@@ -1161,7 +1258,7 @@
         },
         prop_types: [
           {
-            name: "Cacti",
+            name: "Wild Sand",
             symbol: "≋",
             backgroundColor: "#8B0000",
             color: "#FFD700",
@@ -1177,12 +1274,13 @@
             smoothness: 20,
           },
           {
-            name: "Skull",
+            name: "Skull Flower",
             symbol: "☠",
             backgroundColor: "#D3D3D3",
             color: "#FF4500",
             rarity: 0.95,
             smoothness: 10,
+            isHerb: true,
           },
         ],
         creature_types: [
@@ -1215,36 +1313,38 @@
           worldSize: 15,
         },
         floor_tile: {
-          name: "Water",
-          symbol: "≈",
+          name: "Seaweed",
+          symbol: "ϟ",
           backgroundColor: "#000080",
           color: "#FFFFFF",
           canWalk: false,
         },
         prop_types: [
           {
-            name: "Seaweed",
-            symbol: "ϟ",
+            name: "Odd Water",
+            symbol: "≈",
             backgroundColor: "#008000",
             color: "#00FFFF",
             rarity: 0.2,
             smoothness: 40,
+            isWater: true,
           },
           {
-            name: "Shipwreck",
-            symbol: "⛴",
+            name: "Darkrock",
+            symbol: "☠",
             backgroundColor: "#1E90FF",
             color: "#FFFF00",
             rarity: 0.6,
             smoothness: 30,
           },
           {
-            name: "Glowing Crystals",
+            name: "Lightstone",
             symbol: "✦",
             backgroundColor: "#483D8B",
             color: "#FF1493",
             rarity: 0.999,
             smoothness: 5,
+            isOre: true,
           },
         ],
         creature_types: [
@@ -1261,10 +1361,10 @@
             health: 3,
           },
           {
-            name: "DeepSeaCreature",
-            symbol: "🎣",
+            name: "Monster",
+            symbol: "🦂",
             color: "#00CED1",
-            health: 3,
+            health: 15,
           },
         ],
       };
@@ -1273,8 +1373,8 @@
       var itemsJson = {
         fists: {
           type: "weapon",
-          range: 0,
-          damage: 5, // TODO
+          range: 1,
+          damage: 3,
           health: 0,
           attackSpeed: 1,
           statEff: { stat: "none", amount: 0 },
@@ -1310,42 +1410,119 @@
         },
         knife: {
           type: "weapon",
-          range: 2,
-          damage: 1,
+          range: 1,
+          damage: 3,
+          health: 0,
+          attackSpeed: 2,
+          statEff: { stat: "none", amount: 0 },
+          symbol: "🗡️",
+          breakChance: 5,
+        },
+        sword: {
+          type: "weapon",
+          range: 3,
+          damage: 4,
           health: 0,
           attackSpeed: 1,
           statEff: { stat: "none", amount: 0 },
           symbol: "⚔️",
           breakChance: 10,
         },
-        helmet: {
-          type: "armor",
-          range: 0,
-          damage: 0,
-          health: 1,
+        axe: {
+          type: "weapon",
+          range: 2,
+          damage: 6,
+          health: 0,
           attackSpeed: 0,
           statEff: { stat: "none", amount: 0 },
-          symbol: "🛡️",
+          symbol: "⚔️",
+          breakChance: 5,
+        },
+        spear: {
+          type: "weapon",
+          range: 4,
+          damage: 3,
+          health: 0,
+          attackSpeed: 0,
+          statEff: { stat: "none", amount: 0 },
+          symbol: "⚔️",
+          breakChance: 15,
         },
         bow: {
           type: "weapon",
-          range: 7,
-          damage: 1,
+          range: 8,
+          damage: 2,
           health: 0,
-          attackSpeed: 1,
+          attackSpeed: 0,
           statEff: { stat: "none", amount: 0 },
           symbol: "🏹",
           breakChance: 15,
         },
-        potion: {
+        wand: {
+          type: "weapon",
+          range: 6,
+          damage: 2,
+          health: 5,
+          attackSpeed: 1,
+          statEff: { stat: "health", amount: 2 },
+          symbol: "🔮",
+          breakChance: 10,
+        },
+        clothArmor: {
+          type: "armor",
+          range: 1,
+          damage: 0,
+          health: 1,
+          attackSpeed: 1,
+          statEff: { stat: "none", amount: 0 },
+          symbol: "🛡️",
+        },
+        ironArmor: {
+          type: "armor",
+          range: 0,
+          damage: 0,
+          health: 3,
+          attackSpeed: 0,
+          statEff: { stat: "none", amount: 0 },
+          symbol: "🛡️",
+        },
+        damagePotion: {
           type: "potion",
           range: 0,
           damage: 0,
           health: 0,
           attackSpeed: 0,
-          statEff: { stat: "health", amount: 5 },
+          statEff: { stat: "damage", amount: 3 },
           symbol: "🧪",
         },
+        healthPotion: {
+          type: "potion",
+          range: 0,
+          damage: 0,
+          health: 0,
+          attackSpeed: 0,
+          statEff: { stat: "health", amount: 10 },
+          symbol: "🧪",
+        },
+        attackRangePotion: {
+          type: "potion",
+          range: 0,
+          damage: 0,
+          health: 0,
+          attackSpeed: 0,
+          statEff: { stat: "attackRange", amount: 4 },
+          symbol: "🧪",
+        },
+        attackSpeedPotion: {
+          type: "potion",
+          range: 0,
+          damage: 0,
+          health: 0,
+          attackSpeed: 0,
+          statEff: { stat: "attackSpeed", amount: 2 },
+          symbol: "🧪",
+        },
+        // TODO dungeon keys
         key: {
           type: "item",
           range: 0,
@@ -1355,7 +1532,34 @@
           statEff: { stat: "none", amount: 0 },
           symbol: "🗝️",
         },
+        damageBuff: {
+          type: "item",
+          range: 0,
+          damage: 0,
+          health: 0,
+          attackSpeed: 0,
+          statEff: { stat: "none", amount: 0 },
+          symbol: "📜",
+        },
         healthBuff: {
+          type: "item",
+          range: 0,
+          damage: 0,
+          health: 0,
+          attackSpeed: 0,
+          statEff: { stat: "none", amount: 0 },
+          symbol: "📜",
+        },
+        attackRangeBuff: {
+          type: "item",
+          range: 0,
+          damage: 0,
+          health: 0,
+          attackSpeed: 0,
+          statEff: { stat: "none", amount: 0 },
+          symbol: "📜",
+        },
+        attackSpeedBuff: {
           type: "item",
           range: 0,
           damage: 0,
@@ -1374,6 +1578,19 @@
           symbol: "✨",
         },
       };
+
+      var knifeLevel = 1;
+      var swordLevel = 1;
+      var axeLevel = 1;
+      var spearLevel = 1;
+      var bowLevel = 1;
+      var wandLevel = 1;
+      var clothArmorLevel = 1;
+      var ironArmorLevel = 1;
+      var damagePotionLevel = 1;
+      var healthPotionLevel = 1;
+      var attackSpeedPotionLevel = 1;
+      var attackRangePotionLevel = 1;
 
       var creatureJSON = {};
 
@@ -1395,6 +1612,7 @@
       var selTile;
       var selCreature;
       var firstArea = true;
+      var areaCollections = 0;
       var defaultSmoothness = 15; // TODO noise scale
 
       var menuId = 0;
@@ -1642,23 +1860,50 @@
         );
       }
       function updateStats() {
-        var sT = "Health: " + health + " / " + (10 + getStat("health", true));
-        sT += "<br>range: " + getStat("range", false) + " tiles";
-        sT += "<br>damage: " + getStat("damage", false);
-        sT += "<br>attackSpeed: " + getStat("attackSpeed", false);
-        document.getElementById("statsDiv").innerHTML = sT;
-
         var itemsDiv = document.getElementById("itemsDiv");
         itemsDiv.innerHTML =
           "Weapon: " + (equippedWeapon != "" ? equippedWeapon : "fists");
         itemsDiv.innerHTML +=
-          "<br>" + "Armor: " + (equippedArmor != "" ? equippedArmor : "rags");
+          "<br>" +
+          "Equipment: " +
+          (equippedArmor != "" ? equippedArmor : "rags");
         itemsDiv.innerHTML +=
           "<br>" + "Item: " + (equippedItem != "" ? equippedItem : "grass");
         itemsDiv.innerHTML +=
           "<br>" +
           "Potion: " +
           (equippedPotion != "" ? equippedPotion : "water");
+
+        var sT =
+          "Health: " +
+          health +
+          " / " +
+          (10 + getStat("health", true)) +
+          " (x" +
+          getStatTypeLevel(equippedArmor) +
+          ")";
+        sT +=
+          "<br>Damage: " +
+          getStat("damage", false) +
+          " (x" +
+          getStatTypeLevel(equippedWeapon) +
+          ")";
+        sT += "<br>Speed: " + getStat("attackSpeed", false);
+        sT += "<br>Range: " + getStat("attackRange", false) + " tiles";
+        sT += "<br><br>Skills:";
+        sT += "<br>Knife: " + knifeLevel;
+        sT += "<br>Sword: " + swordLevel;
+        sT += "<br>Axe: " + axeLevel;
+        sT += "<br>Spear: " + spearLevel;
+        sT += "<br>Bow: " + bowLevel;
+        sT += "<br>Wand: " + wandLevel;
+        sT += "<br>Cloth Armor: " + clothArmorLevel;
+        sT += "<br>Iron Armor: " + ironArmorLevel;
+        sT += "<br>Damage Potion: " + damagePotionLevel;
+        sT += "<br>Health Potion: " + healthPotionLevel;
+        sT += "<br>Speed Potion: " + attackSpeedPotionLevel;
+        sT += "<br>Range Potion: " + attackRangePotionLevel;
+        document.getElementById("statsDiv").innerHTML = sT;
 
         updateInfoText();
       }
@@ -1671,25 +1916,62 @@
         }
       }
       function getItemDrop() {
-        if (getItemAmount("knife") < 1 && getItemAmount("bow") < 1) {
-          var ranVal = randomRange(0, 1);
+        if (baseEnvJson.danger < 1) {
+          return "";
+        }
+
+        if (
+          getItemAmount("knife") < 1 &&
+          getItemAmount("sword") < 1 &&
+          getItemAmount("axe") < 1 &&
+          getItemAmount("spear") < 1 &&
+          getItemAmount("bow") < 1 &&
+          getItemAmount("wand") < 1
+        ) {
+          var ranVal = randomRange(0, 5);
           if (ranVal == 0) {
-            return "knife"; // TODO more base items
+            return "knife";
           } else if (ranVal == 1) {
+            return "sword";
+          } else if (ranVal == 2) {
+            return "axe";
+          } else if (ranVal == 3) {
+            return "spear";
+          } else if (ranVal == 4) {
             return "bow";
+          } else if (ranVal == 5) {
+            return "wand";
           }
         } else {
-          var ranVal = randomRange(0, 4);
+          var ranVal = randomRange(0, 24);
           if (ranVal == 0) {
-            return "experience"; // TODO leveling
+            return "experience"; // TODO leveling and shops
           } else if (ranVal == 1) {
-            return "knife"; // TODO more base items
+            return "knife";
           } else if (ranVal == 2) {
-            return "helmet";
+            return "sword";
           } else if (ranVal == 3) {
-            return "bow";
+            return "axe";
           } else if (ranVal == 4) {
-            return "potion";
+            return "spear";
+          } else if (ranVal == 5) {
+            return "bow";
+          } else if (ranVal == 6) {
+            return "wand";
+          } else if (ranVal == 7) {
+            return "clothArmor";
+          } else if (ranVal == 8) {
+            return "ironArmor";
+          } else if (ranVal == 9) {
+            return "damagePotion";
+          } else if (ranVal == 10) {
+            return "healthPotion";
+          } else if (ranVal == 11) {
+            return "attackRangePotion";
+          } else if (ranVal == 12) {
+            return "attackSpeedPotion";
+          } else {
+            return "experience";
           }
         }
       }
@@ -1743,6 +2025,13 @@
         },
         // TODO add dungeons
         {
+          name: "Town",
+          color: "#997300",
+          backgroundColor: "#cc9900",
+          symbol: "🏰",
+          canWalk: true,
+        },
+        {
           name: "Dungeongrass",
           color: "#051405",
           backgroundColor: "#33cc33",
@@ -1753,42 +2042,31 @@
 
       var specialTiles = [];
       function updateSpecialTiles() {
-        var d = curDungeonCoord();
+        specialTiles = [
+          { i: 0, j: Math.round(worldSize / 2), type: "Up" },
+          {
+            i: worldSize + 1,
+            j: Math.round(worldSize / 2),
+            type: "Down",
+          },
+          { i: Math.round(worldSize / 2), j: 0, type: "Left" },
+          {
+            i: Math.round(worldSize / 2),
+            j: worldSize + 1,
+            type: "Right",
+          },
+        ];
+
+        var addVal = {};
+
+        var d = curWorldCoordDungeon();
         if (d != "") {
-          specialTiles = [
-            { i: 0, j: Math.round(worldSize / 2), type: "Up" },
-            {
-              i: worldSize + 1,
-              j: Math.round(worldSize / 2),
-              type: "Down",
-            },
-            { i: Math.round(worldSize / 2), j: 0, type: "Left" },
-            {
-              i: Math.round(worldSize / 2),
-              j: worldSize + 1,
-              type: "Right",
-            },
-            {
-              i: randomRange(1, worldSize),
-              j: randomRange(1, worldSize),
-              type: d,
-            },
-          ];
-        } else {
-          specialTiles = [
-            { i: 0, j: Math.round(worldSize / 2), type: "Up" },
-            {
-              i: worldSize + 1,
-              j: Math.round(worldSize / 2),
-              type: "Down",
-            },
-            { i: Math.round(worldSize / 2), j: 0, type: "Left" },
-            {
-              i: Math.round(worldSize / 2),
-              j: worldSize + 1,
-              type: "Right",
-            },
-          ];
+          addVal = {
+            i: randomRange(1, worldSize),
+            j: randomRange(1, worldSize),
+            type: d,
+          };
+          specialTiles.push(addVal);
         }
       }
 
@@ -1821,6 +2099,7 @@
           whisperingSands,
           underwaterCity,
           darkAbyss,
+          Town,
           Dungeongrass,
         ];
         worldCoords = [worldMapSize / 2, worldMapSize / 2];
@@ -1902,13 +2181,14 @@
               ", Y: " +
               (worldCoords[1] - saveWorldCoords[1]) +
               ")") +
-          "<br><br>" +
+          "<br><br>World Map:<br>" +
           worldMapString();
 
         updateStats();
         enableBars(true, 1000);
 
         createTimestamp = Date.now();
+        areaCollections = 0;
       }
       function recreateWorldData(playerDir) {
         worldSize = baseEnvJson.environment.worldSize;
@@ -2238,7 +2518,19 @@
 
       function setSelTile(tile) {
         if (!tile.type.canWalk) {
-          return;
+          if (areaCollections < 4) {
+            if (tile.type.isOre) {
+              doOre();
+            } else if (tile.type.isHerb) {
+              doHerb();
+            } else if (tile.type.isWater) {
+              doWater();
+            } else {
+              return;
+            }
+          } else {
+            return;
+          }
         }
 
         if (selTile != tile) {
@@ -2261,6 +2553,52 @@
         }
       }
 
+      function doOre() {
+        var ranOre = randomRange(1, 100);
+        if (ranOre < 20) {
+          addItem(
+            "experience",
+            randomRange(1, Math.max(baseEnvJson.environment.danger, 1) * 4)
+          );
+        }
+        areaCollections += 1;
+
+        var playerElement = document.getElementById("player1");
+        createWarning("mining", playerElement, 2000);
+      }
+      function doHerb() {
+        var ranHerb = randomRange(1, 100);
+        if (ranHerb < 20) {
+          addItem(
+            "healthPotion",
+            randomRange(1, Math.max(baseEnvJson.environment.danger, 1))
+          );
+        }
+        areaCollections += 1;
+
+        var playerElement = document.getElementById("player1");
+        createWarning("collecting", playerElement, 2000);
+      }
+      function doWater() {
+        var ranFish = randomRange(1, 100);
+        if (ranFish < 20) {
+          var ranFishVal = randomRange(1, 4);
+          if (ranFishVal == 1) {
+            addItem("damagePotion", 1);
+          } else if (ranFishVal == 2) {
+            addItem("healthPotion", 1);
+          } else if (ranFishVal == 3) {
+            addItem("attackSpeedPotion", 1);
+          } else if (ranFishVal == 4) {
+            addItem("attackRangePotion", 1);
+          }
+        }
+        areaCollections += 1;
+
+        var playerElement = document.getElementById("player1");
+        createWarning("fishing", playerElement, 2000);
+      }
+
       function getTileTypeName(tileType) {
         var type = tileTypes.find(function (e) {
           return e.name == tileType.name;
@@ -2268,7 +2606,7 @@
         return type.name;
       }
 
-      function getPlayerTile(creatureName) {
+      function getPlayerTile() {
         for (i = 0; i < worldSize + 2; i++) {
           for (j = 0; j < worldSize + 2; j++) {
             if (worldData[i][j].creature == "player1") {
@@ -2342,7 +2680,7 @@
             "<p " +
             "data-health=" +
             getCreatureByName(creatureName).health *
-              baseEnvJson.environment.danger +
+              Math.max(baseEnvJson.environment.danger, 1) +
             " onclick=clickCreature('" +
             creatureName +
             "','" +
@@ -2432,7 +2770,7 @@
             tile = selCreature;
           }
         } else {
-          if (Math.random() < 0.2) {
+          if (Math.random() < 0.2 && baseEnvJson.danger > 0) {
             createWarning("!", creatureElement, 2000);
             setTimeout(() => {
               createEffect(
@@ -2471,8 +2809,10 @@
           targetElement = document.getElementById(targetOrTile.id);
 
           if (!targetOrTile.type.canWalk) {
-            chooseNextAIAction(creature);
-            return;
+            if (!creature.startsWith("player")) {
+              chooseNextAIAction(creature);
+              return;
+            }
           }
         } else {
           targetElement = targetOrTile;
@@ -2831,8 +3171,8 @@
           return;
         }
 
-        var attackRange = Math.max(30 * getStat("range", false), 30);
-        var shooting = getStat("range", false) > 3;
+        var attackRange = Math.max(30 * getStat("attackRange", false), 30);
+        var shooting = getStat("attackRange", false) > 3;
 
         var playerElement = document.getElementById("player1");
         if (
@@ -2855,6 +3195,17 @@
         }
 
         if (equippedWeapon != "") {
+          var ranLevel = randomRange(1, 100);
+          if (ranLevel <= 3) {
+            levelUpTypeLevel(equippedWeapon);
+            createWarning("level up " + equippedWeapon, playerElement, 1000);
+          }
+          ranLevel = randomRange(1, 100);
+          if (ranLevel <= 3) {
+            levelUpTypeLevel(equippedArmor);
+            createWarning("level up " + equippedArmor, playerElement, 1000);
+          }
+
           var ranBreak = randomRange(1, 100);
           if (ranBreak <= getEquippedWeapon().breakChance) {
             removeItem(equippedWeapon, 1);
@@ -2865,7 +3216,10 @@
       function creatureDeath(creature) {
         updateCreatureJSON(creature);
 
-        addItem(getCreatureDrop(creature), 1);
+        var drop = getCreatureDrop(creature);
+        if (drop != "") {
+          addItem(drop, 1);
+        }
 
         creaturesParent.removeChild(creature.parentElement);
 
@@ -2873,29 +3227,38 @@
       }
 
       function getStat(stat, excludeBuffs) {
-        if (stat == "range") {
+        if (stat == "attackRange") {
           return (
             getEquippedWeapon().range +
             getEquippedArmor().range +
             getEquippedItem().range +
             getEquippedPotion().range +
-            (!excludeBuffs ? getItemAmount("rangeBuff") : 0)
+            (!excludeBuffs
+              ? getItemAmount("attackRangeBuff") *
+                getStatTypeLevel("attackRangePotion")
+              : 0)
           );
         } else if (stat == "damage") {
           return (
-            getEquippedWeapon().damage +
-            getEquippedArmor().damage +
-            getEquippedItem().damage +
-            getEquippedPotion().damage +
-            (!excludeBuffs ? getItemAmount("damageBuff") : 0)
+            getStatTypeLevel(equippedWeapon) *
+            (getEquippedWeapon().damage +
+              getEquippedArmor().damage +
+              getEquippedItem().damage +
+              getEquippedPotion().damage +
+              (!excludeBuffs
+                ? getItemAmount("damageBuff") * getStatTypeLevel("damagePotion")
+                : 0))
           );
         } else if (stat == "health") {
           return (
-            getEquippedWeapon().health +
-            getEquippedArmor().health +
-            getEquippedItem().health +
-            getEquippedPotion().health +
-            (!excludeBuffs ? getItemAmount("healthBuff") : 0)
+            getStatTypeLevel(equippedArmor) *
+            (getEquippedWeapon().health +
+              getEquippedArmor().health +
+              getEquippedItem().health +
+              getEquippedPotion().health +
+              (!excludeBuffs
+                ? getItemAmount("healthBuff") * getStatTypeLevel("healthPotion")
+                : 0))
           );
         } else if (stat == "attackSpeed") {
           return (
@@ -2903,10 +3266,73 @@
             getEquippedArmor().attackSpeed +
             getEquippedItem().attackSpeed +
             getEquippedPotion().attackSpeed +
-            (!excludeBuffs ? getItemAmount("attackSpeedBuff") : 0)
+            (!excludeBuffs
+              ? getItemAmount("attackSpeedBuff") *
+                getStatTypeLevel("attackSpeedPotion")
+              : 0)
           );
         }
       }
+
+      function levelUpTypeLevel(statType) {
+        if (statType == "knife") {
+          knifeLevel += 1;
+        } else if (statType == "sword") {
+          swordLevel += 1;
+        } else if (statType == "axe") {
+          axeLevel += 1;
+        } else if (statType == "spear") {
+          spearLevel += 1;
+        } else if (statType == "bow") {
+          bowLevel += 1;
+        } else if (statType == "wand") {
+          wandLevel += 1;
+        } else if (statType == "clothArmor") {
+          clothArmorLevel += 1;
+        } else if (statType == "ironArmor") {
+          ironArmorLevel += 1;
+        } else if (statType == "damagePotion") {
+          damagePotionLevel += 1;
+        } else if (statType == "healthPotion") {
+          healthPotionLevel += 1;
+        } else if (statType == "attackSpeedPotion") {
+          attackSpeedPotionLevel += 1;
+        } else if (statType == "attackRangePotion") {
+          attackRangePotionLevel += 1;
+        }
+
+        updateStats();
+      }
+      function getStatTypeLevel(statType) {
+        if (statType == "knife") {
+          return knifeLevel;
+        } else if (statType == "sword") {
+          return swordLevel;
+        } else if (statType == "axe") {
+          return axeLevel;
+        } else if (statType == "spear") {
+          return spearLevel;
+        } else if (statType == "bow") {
+          return bowLevel;
+        } else if (statType == "wand") {
+          return wandLevel;
+        } else if (statType == "clothArmor") {
+          return clothArmorLevel;
+        } else if (statType == "ironArmor") {
+          return ironArmorLevel;
+        } else if (statType == "damagePotion") {
+          return damagePotionLevel;
+        } else if (statType == "healthPotion") {
+          return healthPotionLevel;
+        } else if (statType == "attackSpeedPotion") {
+          return attackSpeedPotionLevel;
+        } else if (statType == "attackRangePotion") {
+          return attackRangePotionLevel;
+        } else {
+          return 1;
+        }
+      }
+
       function changeStat(stat, amount) {
         if (stat == "health") {
           health += amount;
@@ -2984,7 +3410,9 @@
                   (iJson.range != 0 ? " range:" + iJson.range : "") +
                   (iJson.damage != 0 ? " damage:" + iJson.damage : "") +
                   (iJson.health != 0 ? " health:" + iJson.health : "") +
-                  (iJson.attackSpeed != 0 ? " dex:" + iJson.attackSpeed : "") +
+                  (iJson.attackSpeed != 0
+                    ? " speed:" + iJson.attackSpeed
+                    : "") +
                   (iJson.statEff.stat != "none"
                     ? "<br>effect: " +
                       iJson.statEff.stat +
@@ -3064,15 +3492,15 @@
       }
       function useItem(useItem) {
         if (!useItem || useItem == "") {
-          addItem("key", 1); // TODO
+          enterDungeon("");
           return;
         }
 
         for (i = 0; i < items.length; i++) {
           if (items[i][0] == useItem) {
             var iObj = itemsJson[items[i][0]];
-            if (iObj.statEff.stat == "range") {
-              addItem("rangeBuff", iObj.statEff.amount);
+            if (iObj.statEff.stat == "attackRange") {
+              addItem("attackRangeBuff", iObj.statEff.amount);
             }
             if (iObj.statEff.stat == "damage") {
               addItem("damageBuff", iObj.statEff.amount);
@@ -3086,8 +3514,26 @@
             }
 
             if (iObj.type == "potion") {
+              var ranLevel = randomRange(1, 100);
+              if (ranLevel <= 3) {
+                var ranLevelType = randomRange(1, 4);
+                if (ranLevelType == 1) {
+                  levelUpTypeLevel("damagePotion");
+                  createWarning("level up damage potion", playerElement, 1000);
+                } else if (ranLevelType == 2) {
+                  levelUpTypeLevel("healthPotion");
+                  createWarning("level up health potion", playerElement, 1000);
+                } else if (ranLevelType == 3) {
+                  levelUpTypeLevel("attackSpeedPotion");
+                  createWarning("level up speed potion", playerElement, 1000);
+                } else if (ranLevelType == 4) {
+                  levelUpTypeLevel("attackRangePotion");
+                  createWarning("level up range potion", playerElement, 1000);
+                }
+              }
+
               removeItem(useItem, 1);
-            } else if (iObj.type == "item") {
+            } else {
               enterDungeon(useItem);
             }
 
@@ -3126,7 +3572,7 @@
         }
         return "";
       }
-      function curDungeonCoord() {
+      function curWorldCoordDungeon() {
         for (const key in dungeonInfo) {
           if (
             dungeonInfo[key].worldCoord[0] == worldCoords[0] &&
@@ -3148,7 +3594,7 @@
           return;
         }
 
-        if (dungeonJson.reqItem != keyItem) {
+        if (dungeonJson.reqItem != "" && dungeonJson.reqItem != keyItem) {
           return;
         }
 
@@ -3391,9 +3837,9 @@
     <div>
       <div class="panel">
         <div class="panel-content">
-          <div id="statsDiv" class="stats-text"></div>
-          <br />
           <div id="itemsDiv" class="stats-text"></div>
+          <br />
+          <div id="statsDiv" class="stats-text"></div>
         </div>
       </div>
 
@@ -3409,13 +3855,13 @@
           </div>
           <div style="grid-area: topLeft">
             <button id="topLeftButton" onclick="arrowUpLeft()">
-              <span id="topLeftText" class="button-text">Item</span>
+              <span id="topLeftText" class="button-text">🔑</span>
               <div id="topLeftBLoad" class="loading-bar"></div>
             </button>
           </div>
           <div style="grid-area: topRight">
             <button id="topRightButton" onclick="arrowUpRight()">
-              <span id="topRightText" class="button-text">Potion</span>
+              <span id="topRightText" class="button-text">🧪</span>
               <div id="topRightBLoad" class="loading-bar"></div>
             </button>
           </div>
@@ -3445,13 +3891,13 @@
           </div>
           <div style="grid-area: bottomLeft">
             <button id="bottomLeftButton" onclick="arrowDownLeft()">
-              <span id="bottomLeftText" class="button-text">TODO</span>
+              <span id="bottomLeftText" class="button-text">🕒</span>
               <div id="bottomLeftBLoad" class="loading-bar"></div>
             </button>
           </div>
           <div style="grid-area: bottomRight">
             <button id="bottomRightButton" onclick="arrowDownRight()">
-              <span id="bottomRightText" class="button-text">Clear</span>
+              <span id="bottomRightText" class="button-text">❌</span>
               <div id="bottomRightBLoad" class="loading-bar"></div>
             </button>
           </div>
@@ -3614,6 +4060,8 @@
 
     if (menuId < items.length) {
       useItem(items[menuId][0]);
+    } else if (items.length == 0) {
+      useItem("");
     }
   }
   // Right
@@ -3624,16 +4072,18 @@
       }
 
       var aS = getStat("attackSpeed", false);
-      if (aS >= 1 && aS < 5) {
+      if (aS == 1) {
+        time = 2000;
+      } else if (aS == 2) {
         time = 1500;
-      } else if (aS >= 5 && aS < 10) {
+      } else if (aS == 3) {
         time = 1000;
-      } else if (aS >= 10 && aS < 15) {
+      } else if (aS == 4) {
         time = 800;
-      } else if (aS >= 15) {
+      } else if (aS >= 5) {
         time = 500;
       } else {
-        time = 2000;
+        time = 2500;
       }
 
       //actType = "right";
@@ -3781,14 +4231,14 @@
 
   function setActionButtonsText() {
     document.getElementById("topText").innerHTML =
-      selCreature != null ? "^" : "^";
+      selCreature != null ? "🔼" : "🔼";
     document.getElementById("leftText").innerHTML =
-      selCreature != null ? "Use" : "Use";
+      selCreature != null ? "🖐️" : "🖐️";
     //blockText.innerHTML = selCreature != null ? "🛡️" : "🛡️";
     document.getElementById("rightText").innerHTML =
-      selCreature != null ? "Attack" : "Equip";
+      selCreature != null ? "🗡️" : "💼";
     document.getElementById("bottomText").innerHTML =
-      selCreature != null ? "v" : "v";
+      selCreature != null ? "🔽" : "🔽";
   }
 </script>
 

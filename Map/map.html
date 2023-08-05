@@ -4,43 +4,41 @@
     <source src="Recording.m4a" />
   </audio>
 
-  <script>
-    window.onload = function () {
-      var context = new AudioContext();
-      document.addEventListener("click", musicPlay);
-    };
-
-    function musicPlay() {
-      document.getElementById("audio").play();
-      document.removeEventListener("click", musicPlay);
-    }
-  </script>
-
   <head>
-    <title>Image Panel</title>
+    <title>Lieda Map</title>
     <style>
       body {
         margin: 0;
         overflow: hidden;
       }
-      #map {
+
+      #map-container {
         width: 100vw;
         height: 100vh;
-        background: #f0f0f0;
+        overflow: auto;
+        background-image: url("waves.jpeg");
+        background-size: cover;
+        background-repeat: no-repeat;
         display: flex;
         align-items: center;
         justify-content: center;
         position: relative;
       }
+
+      #map {
+        position: relative;
+      }
+
       #main-image {
-        width: 90%;
-        max-height: 90%;
+        max-width: 100%;
+        max-height: 100%;
         object-fit: cover;
       }
+
       .icon {
         position: absolute;
-        width: 50px;
-        height: 50px;
+        width: 20px;
+        height: 20px;
         background: #3498db;
         border-radius: 50%;
         display: flex;
@@ -54,76 +52,440 @@
       .icon:hover {
         background-color: #2980b9;
       }
+
       .info-panel {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid #ccc;
-        border-radius: 10px;
+        border: 3px solid #3d2e1f;
+        border-radius: 20px;
         display: none;
         padding: 20px;
         max-width: 400px;
         text-align: center;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+        background-image: url("parchment.jpeg");
       }
       .info-panel.show {
         display: block;
       }
+
       .close-button {
         position: absolute;
-        top: 10px;
-        right: 10px;
-        font-size: 18px;
+        width: 5%;
+        height: 5%;
+        top: 5px;
+        right: 5px;
+        font-size: 25px;
         cursor: pointer;
+        border: 1px solid #271d14;
+        border-radius: 10px;
+        color: #d94b59;
+        background-color: #5a432d;
+      }
+
+      .info-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .info-text {
+        font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+          "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+        max-width: 400px;
+        word-wrap: break-word;
+        line-height: 1.6;
+        color: #ffffff;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.9);
       }
     </style>
   </head>
   <body>
-    <div id="map">
-      <img
-        id="main-image"
-        src="https://files.worldwildlife.org/wwfcmsprod/images/HERO_Penguins_Antarctica/story_full_width/9de57cats0_Medium_WW267491.jpg"
-        alt="Main Image"
-      />
-      <div
-        class="icon"
-        style="top: 100px; left: 100px"
-        onclick="showInfoPanel('Icon 1', 'icon1-image-url.jpg', 'Information about Icon 1 goes here.')"
-      >
-        ⓘ
+    <div id="map-container">
+      <div id="map">
+        <img id="main-image" src="worldmap.jpg" alt="Main Image" />
+        <!-- TODO below
+          data-left="60"
+          data-top="60" -->
+        <div
+          class="icon"
+          style="left: 69%; top: 68%"
+          onclick="showInfoPanel('avaloriaPlains')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 60%; top: 80%"
+          onclick="showInfoPanel('emeraldForest')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 35%; top: 35%"
+          onclick="showInfoPanel('crystalCaves')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 45%; top: 80%"
+          onclick="showInfoPanel('coralCoast')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 51%; top: 37%"
+          onclick="showInfoPanel('scarletDesert')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 85%; top: 12%"
+          onclick="showInfoPanel('silverhaven')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 76%; top: 57%"
+          onclick="showInfoPanel('steelforge')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 43%; top: 64%"
+          onclick="showInfoPanel('jadeCity')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 48%; top: 88%"
+          onclick="showInfoPanel('moonshadowGrove')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 48%; top: 35%"
+          onclick="showInfoPanel('sunfireOasis')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 25%; top: 26%"
+          onclick="showInfoPanel('infernoHold')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 60%; top: 76%"
+          onclick="showInfoPanel('wanderingStatue')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 35%; top: 8%"
+          onclick="showInfoPanel('gloomsburg')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 5%; top: 53%"
+          onclick="showInfoPanel('bizzikTunnels')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 4%; top: 46%"
+          onclick="showInfoPanel('drakmorPeak')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 70%; top: 30%"
+          onclick="showInfoPanel('sidedownCity')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 80%; top: 50%"
+          onclick="showInfoPanel('mysticHollow')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 40%; top: 55%"
+          onclick="showInfoPanel('abyssalPit')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 65%; top: 51%"
+          onclick="showInfoPanel('beastVaults')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 22%; top: 76%"
+          onclick="showInfoPanel('shadowmere')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 77%; top: 35%"
+          onclick="showInfoPanel('duskhaven')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 61%; top: 67%"
+          onclick="showInfoPanel('serena')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 12%; top: 65%"
+          onclick="showInfoPanel('veilmarshHarbor')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 78%; top: 30%"
+          onclick="showInfoPanel('wildwood')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 49%; top: 54%"
+          onclick="showInfoPanel('leviathanBay')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 70%; top: 23%"
+          onclick="showInfoPanel('solitude')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 23%; top: 40%"
+          onclick="showInfoPanel('forge')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 64%; top: 43%"
+          onclick="showInfoPanel('obsidia')"
+        >
+          ⓘ
+        </div>
       </div>
-      <div
-        class="icon"
-        style="top: 300px; left: 500px"
-        onclick="showInfoPanel('Icon 2', 'icon2-image-url.jpg', 'Information about Icon 2 goes here.')"
-      >
-        ⓘ
-      </div>
-      <!-- Add more icons here with different positions and onclick values -->
     </div>
     <div id="info-panel" class="info-panel">
       <span class="close-button" onclick="closeInfoPanel()">&times;</span>
-      <img id="info-image" src="" alt="Info Image" />
-      <p id="info-text">Information about the icon goes here.</p>
+      <img class="info-image" src="" alt="Info Image" />
+      <p class="info-text"></p>
     </div>
 
     <script>
-      function showInfoPanel(title, imageUrl, text) {
+      window.onload = function () {
+        var context = new (window.AudioContext || window.webkitAudioContext)();
+        document.addEventListener("click", musicPlay);
+      };
+      function musicPlay() {
+        document.getElementById("audio").play();
+        document.removeEventListener("click", musicPlay);
+      }
+
+      function showInfoPanel(item) {
         var infoPanel = document.getElementById("info-panel");
-        var infoImage = document.getElementById("info-image");
-        var infoText = document.getElementById("info-text");
+        var infoImage = document.querySelector(".info-image");
+        var infoText = document.querySelector(".info-text");
+
+        var title = worldData[item].title;
+        var imageUrl = worldData[item].imageUrl;
+        var text = worldData[item].text;
 
         infoImage.src = imageUrl;
-        infoText.innerText = text;
+        infoText.innerHTML = title + "<br>" + text;
 
         infoPanel.classList.add("show");
       }
-
       function closeInfoPanel() {
         var infoPanel = document.getElementById("info-panel");
         infoPanel.classList.remove("show");
       }
+
+      var worldData = {
+        avaloriaPlains: {
+          title: "Avaloria Plains",
+          imageUrl: "field.jpeg",
+          text: "Vast grasslands stretching as far as the eye can see, inhabited by nomadic tribes and wild creatures.",
+        },
+        emeraldForest: {
+          title: "Emerald Forest",
+          imageUrl: "brightforest.jpeg",
+          text: "A lush and mystical woodland filled with ancient trees and hidden groves.",
+        },
+        crystalCaves: {
+          title: "Crystal Caves",
+          imageUrl: "shiny.jpeg",
+          text: "Glistening caves adorned with precious gemstones, home to ancient secrets.",
+        },
+        coralCoast: {
+          title: "Coral Coast",
+          imageUrl: "reef.jpeg",
+          text: "An underwater wonderland of vibrant coral reefs and exotic sea life.",
+        },
+        scarletDesert: {
+          title: "Scarlet Desert",
+          imageUrl: "desert.jpeg",
+          text: "An arid and unforgiving landscape, home to resilient desert tribes and ancient ruins.",
+        },
+        silverhaven: {
+          title: "Silverhaven",
+          imageUrl: "clouds.jpeg",
+          text: "A majestic floating city inhabited by Noblemen, with a focus on knowledge and wisdom.",
+        },
+        steelforge: {
+          title: "Steelforge",
+          imageUrl: "mountains.jpeg",
+          text: "A fortified city nestled within the mountains, known for its masterful craftsmanship and fierce warriors.",
+        },
+        jadeCity: {
+          title: "Jade City",
+          imageUrl: "castle.jpeg",
+          text: "A bustling metropolis renowned far and wide for its vibrant trade routes and unmatched quality of life.",
+        },
+        moonshadowGrove: {
+          title: "Moonshadow Grove",
+          imageUrl: "forest.jpeg",
+          text: "A hidden sanctuary, dedicated to preserving the balance of nature.",
+        },
+        sunfireOasis: {
+          title: "Sunfire Oasis",
+          imageUrl: "desertcity.jpeg",
+          text: "A desert city built around an oasis, known for its grand architecture and vibrant bazaars.",
+        },
+        infernoHold: {
+          title: "Inferno Hold",
+          imageUrl: "volcano.jpeg",
+          text: "A city built inside an active volcano, inhabited by daring adventurers.",
+        },
+        wanderingStatue: {
+          title: "Wandering Statue",
+          imageUrl: "statue.jpeg",
+          text: "A colossal statue that appears to move when unobserved, leaving those who witness it perplexed.",
+        },
+        gloomsburg: {
+          title: "Gloomsburg",
+          imageUrl: "lovecraft.jpeg",
+          text: "A gothic city where dark forces lurk, haunted by giant monsters that roam its fog-shrouded streets.",
+        },
+        bizzikTunnels: {
+          title: "Bizzik Tunnels",
+          imageUrl: "goblincave.jpeg",
+          text: "An underground city with winding passages and clever traps, hidden away from the surface world.",
+        },
+        drakmorPeak: {
+          title: "Drakmor Peak",
+          imageUrl: "dragon.jpeg",
+          text: "A mountain ruled by a fearsome dragon, who demands tribute from nearby settlements.",
+        },
+        sidedownCity: {
+          title: "Sidedown City",
+          imageUrl: "hanging.jpeg",
+          text: "An enigmatic city suspended from the ceiling of a massive underground cavern, defying gravity.",
+        },
+        mysticHollow: {
+          title: "Mystic Hollow",
+          imageUrl: "lights.jpeg",
+          text: "A mysterious mountain village with glowing flora and fauna, rumored to have access to forgotten knowledge.",
+        },
+        abyssalPit: {
+          title: "Abyssal Pit",
+          imageUrl: "pyramid.jpeg",
+          text: "An underground pit that swallows anyone who enters, with no one ever returning, shrouded in eerie darkness.",
+        },
+        beastVaults: {
+          title: "Beast Vaults",
+          imageUrl: "dark.jpeg",
+          text: "A network of ancient tunnels beneath the mountains, harboring terrifying monsters and dark secrets.",
+        },
+        shadowmere: {
+          title: "Shadowmere",
+          imageUrl: "endless.jpeg",
+          text: "A once-thriving city now corrupted by the greed and malice of men.",
+        },
+        duskhaven: {
+          title: "Duskhaven",
+          imageUrl: "caves.jpeg",
+          text: "A sprawling city nestled within the labyrinthine caves beneath a towering mountain, Duskhaven thrives as an intricate network of subterranean streets.",
+        },
+        serena: {
+          title: "Serena",
+          imageUrl: "farm.jpeg",
+          text: "Large expanse of peaceful farmland and gently rolling grass hills, offering respite from the chaos of the world beyond.",
+        },
+        veilmarshHarbor: {
+          title: "Veilmarsh Harbor",
+          imageUrl: "harbor.jpeg",
+          text: "A mystic swamp harbor veiled in ethereal mists, Veilmarsh Harbor boasts a bustling hub of trade and intrigue.",
+        },
+        wildwood: {
+          title: "Wildwood",
+          imageUrl: "monster.jpeg",
+          text: "Deep within the heart of a foreboding forest lies Wildwood Enclave, an area teeming with monstrous creatures and ancient mysteries.",
+        },
+        leviathanBay: {
+          title: "Leviathan Bay",
+          imageUrl: "seamonster.jpeg",
+          text: "A mesmerizing bay engulfed by towering waves and hidden secrets.",
+        },
+        solitude: {
+          title: "Solitude",
+          imageUrl: "town.jpeg",
+          text: "Nestled atop a majestic mountain peak, Solitude Peak stands as a small, peaceful town.",
+        },
+        forge: {
+          title: "Forge",
+          imageUrl: "village.jpeg",
+          text: "A village of huts in an environment of molten lava, sustained by the relentless toil of enslaved miners.",
+        },
+        obsidia: {
+          title: "Obsidia",
+          imageUrl: "gate.jpeg",
+          text: "A place tainted by an enigmatic force that ensnares the hearts of men.",
+        },
+      };
     </script>
   </body>
 </html>

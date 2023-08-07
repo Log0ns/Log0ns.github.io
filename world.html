@@ -5,6 +5,19 @@
     <script>
       var baseEnvJson = {};
 
+      var shopInfo = {
+        ArmorShop: {
+          shopType: "level",
+          purchase: "clothArmor",
+          cost: 2,
+        },
+        ItemShop: {
+          shopType: "item",
+          purchase: "key",
+          cost: 3,
+        },
+      };
+
       var activeDungeon = -1;
       var saveWorldCoords = [];
 
@@ -1460,7 +1473,7 @@
         },
         wand: {
           type: "weapon",
-          range: 6,
+          range: 8,
           damage: 2,
           health: 5,
           attackSpeed: 1,
@@ -1665,7 +1678,38 @@
       function arrowDown() {
         bottomCooldown(500);
       }
-      function arrowDownLeft() {}
+      function arrowDownLeft() {
+        var shopJson = shopInfo[getPlayerTile().type.name];
+        var dungeonJson = dungeonInfo[getPlayerTile().type.name];
+        if (shopJson) {
+          var playerElement = document.getElementById("player1");
+          var ret =
+            "type: " + (shopJson.shopType == "level" ? "level up" : "purchase");
+          ret +=
+            "<br>" +
+            shopJson.purchase +
+            " (" +
+            (shopJson.shopType == "level"
+              ? getStatTypeLevel(shopJson.purchase) *
+                getStatTypeLevel(shopJson.purchase)
+              : shopJson.cost) +
+            " exp)";
+          createWarning(ret, playerElement, 1500);
+        } else if (dungeonJson) {
+          var playerElement = document.getElementById("player1");
+          var ret =
+            "requires " +
+            dungeonJson.reqItem +
+            "<br>" +
+            "lvl: " +
+            dungeonJson.danger;
+          createWarning(ret, playerElement, 1500);
+        } else {
+          var playerElement = document.getElementById("player1");
+          var ret = getPlayerTile().type.name;
+          createWarning(ret, playerElement, 1500);
+        }
+      }
       function arrowDownRight() {
         clearSel();
       }
@@ -1916,7 +1960,7 @@
         }
       }
       function getItemDrop() {
-        if (baseEnvJson.danger < 1) {
+        if (baseEnvJson.environment.danger < 1) {
           return "";
         }
 
@@ -2035,7 +2079,22 @@
           name: "Dungeongrass",
           color: "#051405",
           backgroundColor: "#33cc33",
-          symbol: "D",
+          symbol: "🏯",
+          canWalk: true,
+        },
+        // TODO add shops
+        {
+          name: "ArmorShop",
+          color: "#051405",
+          backgroundColor: "#33cc33",
+          symbol: "🏞️",
+          canWalk: true,
+        },
+        {
+          name: "ItemShop",
+          color: "#051405",
+          backgroundColor: "#33cc33",
+          symbol: "🏞️",
           canWalk: true,
         },
       ];
@@ -2065,6 +2124,15 @@
             i: randomRange(1, worldSize),
             j: randomRange(1, worldSize),
             type: d,
+          };
+          specialTiles.push(addVal);
+        }
+
+        if (activeDungeon == 0) {
+          addVal = {
+            i: randomRange(1, worldSize),
+            j: randomRange(1, worldSize),
+            type: "ItemShop",
           };
           specialTiles.push(addVal);
         }
@@ -2770,7 +2838,7 @@
             tile = selCreature;
           }
         } else {
-          if (Math.random() < 0.2 && baseEnvJson.danger > 0) {
+          if (Math.random() < 0.2 && baseEnvJson.environment.danger > 0) {
             createWarning("!", creatureElement, 2000);
             setTimeout(() => {
               createEffect(
@@ -3492,6 +3560,7 @@
       }
       function useItem(useItem) {
         if (!useItem || useItem == "") {
+          buyFromShop();
           enterDungeon("");
           return;
         }
@@ -3534,6 +3603,7 @@
 
               removeItem(useItem, 1);
             } else {
+              buyFromShop();
               enterDungeon(useItem);
             }
 
@@ -3560,6 +3630,45 @@
         updateStats();
       }
 
+      function buyFromShop() {
+        var shopJson = shopInfo[getPlayerTile().type.name];
+        if (!shopJson) {
+          return;
+        }
+
+        var cost = shopJson.cost;
+
+        if (shopJson.shopType == "level") {
+          cost =
+            getStatTypeLevel(shopJson.purchase) *
+            getStatTypeLevel(shopJson.purchase);
+        }
+
+        if (getItemAmount("experience") < cost) {
+          var playerElement = document.getElementById("player1");
+          createWarning(
+            "requires " + cost + " experience",
+            playerElement,
+            1500
+          );
+          return;
+        }
+
+        if (shopJson.shopType == "level") {
+          levelUpTypeLevel(shopJson.purchase);
+
+          var playerElement = document.getElementById("player1");
+          createWarning("level up " + shopJson.purchase, playerElement, 1000);
+        } else if (shopJson.shopType == "item") {
+          addItem(shopJson.purchase, 1);
+
+          var playerElement = document.getElementById("player1");
+          createWarning("purchased " + shopJson.purchase, playerElement, 1000);
+        }
+
+        removeItem("experience", cost);
+      }
+
       function getCurDungeon() {
         if (activeDungeon < 0) {
           return "";
@@ -3573,12 +3682,24 @@
         return "";
       }
       function curWorldCoordDungeon() {
-        for (const key in dungeonInfo) {
-          if (
-            dungeonInfo[key].worldCoord[0] == worldCoords[0] &&
-            dungeonInfo[key].worldCoord[1] == worldCoords[1]
-          ) {
-            return key;
+        if (activeDungeon >= 0) {
+          for (const key in dungeonInfo) {
+            if (
+              dungeonInfo[key].worldCoord[0] == worldCoords[0] &&
+              dungeonInfo[key].worldCoord[1] == worldCoords[1] &&
+              dungeonInfo[key].id == activeDungeon
+            ) {
+              return key;
+            }
+          }
+        } else {
+          for (const key in dungeonInfo) {
+            if (
+              dungeonInfo[key].worldCoord[0] == worldCoords[0] &&
+              dungeonInfo[key].worldCoord[1] == worldCoords[1]
+            ) {
+              return key;
+            }
           }
         }
         return "";
@@ -3595,6 +3716,8 @@
         }
 
         if (dungeonJson.reqItem != "" && dungeonJson.reqItem != keyItem) {
+          var playerElement = document.getElementById("player1");
+          createWarning("requires " + dungeonJson.reqItem, playerElement, 1500);
           return;
         }
 
@@ -3891,7 +4014,7 @@
           </div>
           <div style="grid-area: bottomLeft">
             <button id="bottomLeftButton" onclick="arrowDownLeft()">
-              <span id="bottomLeftText" class="button-text">🕒</span>
+              <span id="bottomLeftText" class="button-text">👁️</span>
               <div id="bottomLeftBLoad" class="loading-bar"></div>
             </button>
           </div>

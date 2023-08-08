@@ -6,6 +6,7 @@
       var baseEnvJson = {};
 
       var shopInfo = {
+        // TODO more shops
         ArmorShop: {
           shopType: "level",
           purchase: "clothArmor",
@@ -17,6 +18,30 @@
           cost: 3,
         },
       };
+
+      var questInfo = {
+        // TODO more quests
+        Quest1: {
+          name: "Quest 1",
+          worldCoord: [101, 100],
+          targetType: "creature",
+          target: "Fox",
+          amount: 2,
+          reward: "key",
+          rewardAmount: 2,
+        },
+        Quest2: {
+          name: "Quest 2",
+          worldCoord: [100, 101],
+          targetType: "item",
+          target: "experience",
+          amount: 4,
+          reward: "bow",
+          rewardAmount: 4,
+        },
+      };
+
+      var quests = [];
 
       var activeDungeon = -1;
       var saveWorldCoords = [];
@@ -1477,7 +1502,7 @@
           damage: 2,
           health: 5,
           attackSpeed: 1,
-          statEff: { stat: "health", amount: 2 },
+          statEff: { stat: "none", amount: 0 },
           symbol: "🔮",
           breakChance: 10,
         },
@@ -1680,6 +1705,7 @@
       }
       function arrowDownLeft() {
         var shopJson = shopInfo[getPlayerTile().type.name];
+        var questJson = questInfo[getPlayerTile().type.name];
         var dungeonJson = dungeonInfo[getPlayerTile().type.name];
         if (shopJson) {
           var playerElement = document.getElementById("player1");
@@ -1694,6 +1720,22 @@
                 getStatTypeLevel(shopJson.purchase)
               : shopJson.cost) +
             " exp)";
+          createWarning(ret, playerElement, 1500);
+        } else if (questJson) {
+          var playerElement = document.getElementById("player1");
+          var ret =
+            questJson.name +
+            "<br>" +
+            questJson.target +
+            " (" +
+            questJson.amount +
+            ")" +
+            "<br>" +
+            "reward: " +
+            questJson.reward +
+            " (" +
+            questJson.rewardAmount +
+            ")";
           createWarning(ret, playerElement, 1500);
         } else if (dungeonJson) {
           var playerElement = document.getElementById("player1");
@@ -2067,6 +2109,7 @@
           symbol: ">",
           canWalk: true,
         },
+
         // TODO add dungeons
         {
           name: "Town",
@@ -2078,7 +2121,7 @@
         {
           name: "Dungeongrass",
           color: "#051405",
-          backgroundColor: "#33cc33",
+          backgroundColor: "#cc9900",
           symbol: "🏯",
           canWalk: true,
         },
@@ -2086,15 +2129,30 @@
         {
           name: "ArmorShop",
           color: "#051405",
-          backgroundColor: "#33cc33",
+          backgroundColor: "#cc9900",
           symbol: "🏞️",
           canWalk: true,
         },
         {
           name: "ItemShop",
           color: "#051405",
-          backgroundColor: "#33cc33",
+          backgroundColor: "#cc9900",
           symbol: "🏞️",
+          canWalk: true,
+        },
+        // TODO add quests
+        {
+          name: "Quest1",
+          color: "#051405",
+          backgroundColor: "#cc9900",
+          symbol: "🌟",
+          canWalk: true,
+        },
+        {
+          name: "Quest2",
+          color: "#051405",
+          backgroundColor: "#cc9900",
+          symbol: "🌟",
           canWalk: true,
         },
       ];
@@ -2124,6 +2182,16 @@
             i: randomRange(1, worldSize),
             j: randomRange(1, worldSize),
             type: d,
+          };
+          specialTiles.push(addVal);
+        }
+
+        var q = curWorldCoordQuests();
+        if (q != "") {
+          addVal = {
+            i: randomRange(1, worldSize),
+            j: randomRange(1, worldSize),
+            type: q,
           };
           specialTiles.push(addVal);
         }
@@ -3264,12 +3332,12 @@
 
         if (equippedWeapon != "") {
           var ranLevel = randomRange(1, 100);
-          if (ranLevel <= 3) {
+          if (ranLevel <= 6) {
             levelUpTypeLevel(equippedWeapon);
             createWarning("level up " + equippedWeapon, playerElement, 1000);
           }
           ranLevel = randomRange(1, 100);
-          if (ranLevel <= 3) {
+          if (ranLevel <= 6) {
             levelUpTypeLevel(equippedArmor);
             createWarning("level up " + equippedArmor, playerElement, 1000);
           }
@@ -3292,6 +3360,8 @@
         creaturesParent.removeChild(creature.parentElement);
 
         selCreature = null;
+
+        tryProgressQuests("creature", creature.id);
       }
 
       function getStat(stat, excludeBuffs) {
@@ -3493,6 +3563,28 @@
               "<br>";
           }
         }
+        if (quests.length > 0) {
+          retText += "<br>Quests:";
+          for (index = 0; index < quests.length; index++) {
+            var questJson = quests[index];
+            retText +=
+              "<br> - " +
+              questJson.name +
+              "<br>" +
+              questJson.target +
+              " (" +
+              questJson.soFar +
+              " / " +
+              questJson.amount +
+              ")" +
+              "<br>" +
+              "reward: " +
+              questJson.reward +
+              " (" +
+              questJson.rewardAmount +
+              ")";
+          }
+        }
         document.getElementById("invText").innerHTML = retText;
       }
 
@@ -3510,6 +3602,8 @@
         if (!added) {
           items.push([addItem, amount]);
         }
+
+        tryProgressQuests("item", addItem);
 
         updateStats();
       }
@@ -3561,6 +3655,7 @@
       function useItem(useItem) {
         if (!useItem || useItem == "") {
           buyFromShop();
+          takeQuest();
           enterDungeon("");
           return;
         }
@@ -3604,6 +3699,7 @@
               removeItem(useItem, 1);
             } else {
               buyFromShop();
+              takeQuest();
               enterDungeon(useItem);
             }
 
@@ -3667,6 +3763,75 @@
         }
 
         removeItem("experience", cost);
+      }
+
+      function takeQuest() {
+        var questJson = questInfo[getPlayerTile().type.name];
+        if (!questJson) {
+          return;
+        }
+
+        for (var i = 0; i < quests.length; i++) {
+          if (quests[i].name === questJson.name) {
+            return;
+          }
+        }
+
+        quests.push({
+          name: questJson.name,
+          targetType: questJson.targetType,
+          target: questJson.target,
+          amount: questJson.amount,
+          soFar: 0,
+          reward: questJson.reward,
+          rewardAmount: questJson.rewardAmount,
+        });
+
+        var playerElement = document.getElementById("player1");
+        createWarning("received quest: " + questJson.name, playerElement, 1000);
+
+        updateStats();
+      }
+      function curWorldCoordQuests() {
+        for (const key in questInfo) {
+          if (
+            questInfo[key].worldCoord[0] == worldCoords[0] &&
+            questInfo[key].worldCoord[1] == worldCoords[1]
+          ) {
+            return key;
+          }
+        }
+        return "";
+      }
+      function tryProgressQuests(type, target) {
+        quests.forEach((quest) => {
+          if (type == quest.targetType && target.startsWith(quest.target)) {
+            quest.soFar++;
+
+            if (quest.soFar >= quest.amount) {
+              completeQuest(quest);
+            } else {
+              var playerElement = document.getElementById("player1");
+              createWarning(
+                quest.name + " (" + quest.soFar + " / " + quest.amount + ")",
+                playerElement,
+                1200
+              );
+            }
+          }
+        });
+
+        updateStats();
+      }
+      function completeQuest(quest) {
+        addItem(quest.reward, quest.rewardAmount);
+
+        var playerElement = document.getElementById("player1");
+        createWarning("completed " + quest.name, playerElement, 2000);
+
+        quests = quests.filter((item) => item !== quest);
+
+        updateStats();
       }
 
       function getCurDungeon() {

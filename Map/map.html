@@ -5,7 +5,7 @@
   </audio>
 
   <head>
-    <title>Lieda Map</title>
+    <title>Aevum World Map</title>
     <style>
       body {
         margin: 0;
@@ -307,6 +307,20 @@
         >
           ⓘ
         </div>
+        <div
+          class="icon"
+          style="left: 65%; top: 60%"
+          onclick="showInfoPanel('mistAcademy')"
+        >
+          ⓘ
+        </div>
+        <div
+          class="icon"
+          style="left: 55%; top: 20%"
+          onclick="showInfoPanel('oldCity')"
+        >
+          ⓘ
+        </div>
       </div>
     </div>
     <div id="info-panel" class="info-panel">
@@ -321,7 +335,7 @@
         document.addEventListener("click", musicPlay);
       };
       function musicPlay() {
-        document.getElementById("audio").play();
+        //document.getElementById("audio").play();
         document.removeEventListener("click", musicPlay);
       }
 
@@ -465,8 +479,8 @@
           imageUrl: "monster.jpeg",
           text: "Deep within the heart of a foreboding forest lies Wildwood Enclave, an area teeming with monstrous creatures and ancient mysteries.",
         },
-        leviathanBay: {
-          title: "Leviathan Bay",
+        ancientBay: {
+          title: "Ancient Bay",
           imageUrl: "seamonster.jpeg",
           text: "A mesmerizing bay engulfed by towering waves and hidden secrets.",
         },
@@ -484,6 +498,16 @@
           title: "Obsidia",
           imageUrl: "gate.jpeg",
           text: "A place tainted by an enigmatic force that ensnares the hearts of men.",
+        },
+        mistAcademy: {
+          title: "Mist Academy",
+          imageUrl: "misttown.jpg",
+          text: "Amidst ancient peaks, a forlorn magic school clings to the edge of oblivion, its students yearning to wield powers beyond their reach while the world beyond remains forever distant.",
+        },
+        oldCity: {
+          title: "Old City",
+          imageUrl: "northcity.jpg",
+          text: "A decaying city, nestled upon an island amidst treacherous waters, a testament to forgotten civilizations' futile struggle against the relentless tides of time.",
         },
       };
     </script>

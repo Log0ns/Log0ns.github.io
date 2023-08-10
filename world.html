@@ -6,24 +6,30 @@
       var baseEnvJson = {};
 
       var shopInfo = {
-        // TODO more shops
-        ArmorShop: {
+        // TODO more shops and update shops
+        ClothArmorShop: {
           shopType: "level",
           purchase: "clothArmor",
           cost: 2,
         },
+        IronArmorShop: {
+          shopType: "level",
+          purchase: "ironArmor",
+          cost: 5,
+        },
         ItemShop: {
           shopType: "item",
           purchase: "key",
-          cost: 3,
+          cost: 5,
         },
       };
 
       var questInfo = {
-        // TODO more quests
+        // TODO more quests and update quests
         Quest1: {
           name: "Quest 1",
           worldCoord: [101, 100],
+          inDungeon: true,
           targetType: "creature",
           target: "Fox",
           amount: 2,
@@ -33,6 +39,7 @@
         Quest2: {
           name: "Quest 2",
           worldCoord: [100, 101],
+          inDungeon: false,
           targetType: "item",
           target: "experience",
           amount: 4,
@@ -51,7 +58,7 @@
         Town: {
           id: 0,
           reqItem: "",
-          worldCoord: [100, 100],
+          worldCoord: [100, 101],
           size: 15,
           danger: 0,
           bossChance: 10,
@@ -65,7 +72,7 @@
         Dungeongrass: {
           id: 1,
           reqItem: "key",
-          worldCoord: [101, 100],
+          worldCoord: [101, 103],
           size: 15,
           danger: 2,
           bossChance: 10,
@@ -1653,6 +1660,45 @@
       var areaCollections = 0;
       var defaultSmoothness = 15; // TODO noise scale
 
+      // need to defeat leviathan so...
+      // learn to attack
+      // learn to equip and use items
+      // learn to enter town in coord
+      // learn to get quest (get key to dungeon)
+      // dungeon at coord
+      // dungeon in each biome until leviathan in dark abyss
+      var mainQuestId = 0;
+
+      var mainQuests = [
+        "Quest For The Leviathan<br>First, you must learn to attack.<br>Find an enemy, click them and select 🗡️.",
+        "Equip And Use Items<br>🔼 and 🔽 move through inventory.<br>🖐️ use. 💼 equip. 🛡️ block attacks." +
+          "<br>🔑 equipped item. 🧪 equipped potion. 👁️ view tile.<br>Recommended to use WASD (plus QEZC) for efficiency.",
+        "Enter Area<br>There is a town at [100, 101]. Find the town's tile, then 🖐️ to enter.<br>Towns offer shops and quests (👁️ to view, 🖐️ to interact)." +
+          "<br>Accept starter quest, which will reward key to starter dungeon at [101, 103].",
+        "Info<br>Kill enemies for items and exp, for use in shops.<br>Items will break occasionally, killing enemies will provide weapons." +
+          "<br>Equip armor, weapon and items to face tougher enemies.<br>Take potions for temporary buffs." +
+          "<br>Collect plants for health, mine ore for exp, fish in water for potions." +
+          "<br>Level up skills by using them. Clear dungeons for rare items and keys.",
+        "Grow Stronger And Slay The Leviathan<br>",
+      ];
+
+      function prevQuest() {
+        mainQuestId--;
+        if (mainQuestId < 0) {
+          mainQuestId = 0;
+        }
+
+        updateStats();
+      }
+      function nextQuest() {
+        mainQuestId++;
+        if (mainQuestId >= mainQuests.length) {
+          mainQuestId = mainQuests.length - 1;
+        }
+
+        updateStats();
+      }
+
       var menuId = 0;
 
       document.addEventListener("keydown", function (event) {
@@ -1757,6 +1803,7 @@
       }
       function arrowUp() {
         topCooldown(500);
+        addItem("key", 1); // TODO
       }
       function arrowUpLeft() {
         useItem(equippedItem);
@@ -1991,6 +2038,29 @@
         sT += "<br>Range Potion: " + attackRangePotionLevel;
         document.getElementById("statsDiv").innerHTML = sT;
 
+        document.getElementById("worldDiv").innerHTML =
+          envJsons[getCurEnvJsonId()].environment.name +
+          "<br>(X: " +
+          worldCoords[0] +
+          ", Y: " +
+          worldCoords[1] +
+          ")" +
+          (activeDungeon < 0
+            ? ""
+            : "<br>" +
+              getCurDungeon() +
+              "<br>(X: " +
+              (worldCoords[0] - saveWorldCoords[0]) +
+              ", Y: " +
+              (worldCoords[1] - saveWorldCoords[1]) +
+              ")") +
+          "<br><br>" +
+          "World Map:<br>" +
+          worldMapString() +
+          "<br><br>" +
+          "Quest: " +
+          mainQuests[mainQuestId];
+
         updateInfoText();
       }
 
@@ -2127,7 +2197,14 @@
         },
         // TODO add shops
         {
-          name: "ArmorShop",
+          name: "ClothArmorShop",
+          color: "#051405",
+          backgroundColor: "#cc9900",
+          symbol: "🏞️",
+          canWalk: true,
+        },
+        {
+          name: "IronArmorShop",
           color: "#051405",
           backgroundColor: "#cc9900",
           symbol: "🏞️",
@@ -2196,11 +2273,17 @@
           specialTiles.push(addVal);
         }
 
+        var ranShop = randomRange(1, 3);
         if (activeDungeon == 0) {
           addVal = {
             i: randomRange(1, worldSize),
             j: randomRange(1, worldSize),
-            type: "ItemShop",
+            type:
+              ranShop == 1
+                ? "ItemShop"
+                : ranShop == 2
+                ? "ClothArmorShop"
+                : "IronArmorShop",
           };
           specialTiles.push(addVal);
         }
@@ -2302,23 +2385,6 @@
             }
           }
         } */
-
-        document.getElementById("worldDiv").innerHTML =
-          (activeDungeon < 0
-            ? envJsons[getCurEnvJsonId()].environment.name +
-              "<br>(X: " +
-              worldCoords[0] +
-              ", Y: " +
-              worldCoords[1] +
-              ")"
-            : getCurDungeon() +
-              "<br>(X: " +
-              (worldCoords[0] - saveWorldCoords[0]) +
-              ", Y: " +
-              (worldCoords[1] - saveWorldCoords[1]) +
-              ")") +
-          "<br><br>World Map:<br>" +
-          worldMapString();
 
         updateStats();
         enableBars(true, 1000);
@@ -3798,7 +3864,9 @@
             questInfo[key].worldCoord[0] == worldCoords[0] &&
             questInfo[key].worldCoord[1] == worldCoords[1]
           ) {
-            return key;
+            if (questInfo[key].inDungeon == activeDungeon >= 0) {
+              return key;
+            }
           }
         }
         return "";
@@ -4120,6 +4188,12 @@
       <table class="table-container" id="world"></table>
       <p id="creatures"></p>
       <div id="worldDiv" class="stats-text" style="white-space: pre"></div>
+      <button onclick="prevQuest()">
+        <span class="button-text">◀️</span>
+      </button>
+      <button onclick="nextQuest()">
+        <span class="button-text">▶️</span>
+      </button>
     </div>
 
     <div>
@@ -4265,7 +4339,7 @@
     position: relative;
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #daba91;
+    /* background-color: #daba91; */
     border: none;
     cursor: pointer;
   }
